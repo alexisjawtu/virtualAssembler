@@ -1,0 +1,115 @@
+
+Revisar:
+
+testing/shared_faces__			
+vertices_by_elements.txt:      no muestra todos...
+
+
+--------------------------------------------------------------------
+vertices.txt:                       CORRECTO
+elements.txt                        CORRECTO
+elements_by_vertices_repeated.txt:  CORRECTO
+elements_by_vertices.txt:           CORRECTO
+vertices_by_elements.txt:           CORRECTO
+faces_repeated.txt:                 CORRECTO
+faces.txt:                          CORRECTO
+faces_local_to_global.txt:          CORRECTO
+elements_by_faces.txt:              CORRECTO
+
+
+arch_indices.txt:           sin revisar
+
+-------------------------------------------------------------------
+
+28 y 29 / 11
+
+* NO: esto no anda.
+
+en shared_faces.txt:
+
+1 4 | 2 4 8 9  ## ojala ande esto: 2--4 y 2--8 son dos segmentos validos para hacer el producto vectorial y tomar norma
+2 4 | 2 5 8
+3 4 | 4 5 9
+1 5 | 7 8 9
+
+------------------------------------------------------
+
+* OK. guardar los txt de este experimento parte.
+
+vertices.txt:      					CORRECTO.
+elements.txt 						CORRECTO.
+elements_by_vertices_repeated.txt:  CORRECTO.
+elements_by_vertices.txt:			CORRECTO.
+vertices_by_elements.txt:			CORRECTO.
+shared_faces.txt:					CORRECTO.
+faces_repeated.txt:					CORRECTO.
+faces_local_to_global.txt: 			CORRECTO.
+elements_by_faces.txt				CORRECTO.
+
+----------------------------------------------------------------------------
+
+27 / 11
+
+OK. * seguir con: controlar si macroel_sing_vrtx() esta bien
+
+* cuantos puntos tiene el T5? 
+	ARIEL: son los mismos puntos que en el macro--elemento tipo I? No sabemos.
+			 {sum_{i = 1:n} sum_{j = 1:i} j}
+
+* cuantos elementos tiene el T5? RTA: n^3
+
+OK. * ojo que en el ciclo de T5 hasta ahora solo contemplo
+el primero de tres casos (seis renglones) de la tesis
+
+OBS: **ojo que la aparicion de las caras de cada elemento 
+es en distinto orden que en los tensores de puntos de cuadratura
+sobre las caras face_quad_points()
+
+--------------------------------------------------------------------------------
+
+24 / 11 
+
+faces_local_to_global.txt: 			CORRECTO para macro--elemento de tipo 1
+elements_by_faces.txt:				CORRECTO
+
+OK * terminar de poner los CORRECTOs en los de ayer
+OK * REVISAR Y VERIFICAR si anda el parrafo de replacements de untitled.py tambien 
+hacia el faces_local_to_global.txt
+
+* ¿ hace falta invertir la tabla elements_by_faces.txt ?
+
+--------------------------------------------------------------------------------
+
+23 / 11
+
+seguir con esto:  
+
+OK *ver si assembleA.m necesita leer distinto los nuevos txt.
+
+OK *probar con mas de 2 macro--elementos tipo 1 y 
+ con 2 macro--elementos de distintos octantes:
+
+vertices.txt:      					CORRECTO
+elements.txt 						CORRECTO
+elements_by_vertices_repeated.txt:	CORRECTO
+elements_by_vertices.txt:			CORRECTO
+vertices_by_elements.txt:			CORRECTO
+shared_faces.txt:					CORRECTO
+faces_repeated.txt:					CORRECTO
+--------------------------------------------------------------------------------
+
+22 / 11
+revisar:
+
+vertices.txt:      					CORRECTO
+elements.txt 						CORRECTO
+elements_by_vertices_repeated.txt:	CORRECTO
+elements_by_vertices.txt:			CORRECTO
+vertices_by_elements.txt:			CORRECTO
+shared_faces.txt:					CORRECTO
+faces_repeated.txt:					CORRECTO
+faces_local_to_global.txt: 			CORRECTO para macro--elemento de tipo 1
+vertices_unique.txt:      			CORRECTO (ya no se usa)
+
+
+
