@@ -94,8 +94,10 @@ function [outputs] = assmbl_pyram(Mdistances,det_M_Element,vol_pts,face_pts,P0,n
     K_comput  = PROJ.' * int_E_w_w * PROJ;
 
     %% for the stabilizating bilinear form
+
 OJO CON LA NORMAL local:
 en este archivo la primera cara es cuadrilat
+
     D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
 
     Proj_in_base_Vh = D*PROJ;
