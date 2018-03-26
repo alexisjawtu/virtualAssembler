@@ -192,32 +192,16 @@ function [res] = assembleA(num_faces)
 
       face_pts = {};
 
-
-      for f = 1: SEGUIR ACA
-                                                      % 2:(1 + type--of--face)   
-        face = vertices(:,faces(elements_by_faces(el,2),2:1+faces(elements_by_faces(el,2),1)));
-        face_pts(elements_by_faces(el,2)) = (face + shift(face,1,2))/2; 
-        face = vertices(:,faces(elements_by_faces(el,3),2:1+faces(elements_by_faces(el,3),1)));
-        face_pts(elements_by_faces(el,3)) = (face + shift(face,1,2))/2; 
-    
-        face = vertices(:,faces(elements_by_faces(el,4),2:1+faces(elements_by_faces(el,4),1)));
-        face_pts(elements_by_faces(el,4)) = (face + shift(face,1,2))/2; 
-  
-        face = vertices(:,faces(elements_by_faces(el,5),2:1+faces(elements_by_faces(el,5),1)));
-        face_pts(elements_by_faces(el,5)) = (face + shift(face,1,2))/2; 
-  
-        ******** riesgo de mala practica. pasar por los indices de las caras.
-        %face_pts(:,13:16) = P(:,1:4);
-        %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
-        %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
-  
-        face = vertices(:,faces(elements_by_faces(el,6),2:1+faces(elements_by_faces(el,6),1)));
-  
-        face_pts(elements_by_faces(el,6)) = 
-  
-        %face_pts(:,13:16) = P(:,1:4);
-        %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
-        %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
+      for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
+        face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
+        if faces(elements_by_faces(el,f),1) == 3
+          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
+        else
+          face_pts(elements_by_faces(el,f)) = face, SEGUIR ACA: YA REORDENE LOS FACE_QUAD_COEFS !!
+          %face_pts(:,13:16) = P(:,1:4);
+          %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
+          %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
+        end
 
       end
 

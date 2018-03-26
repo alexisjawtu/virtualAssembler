@@ -27,18 +27,18 @@ function [outputs] = assmbl_pyram(face_indices,Mdistances,det_M_Element,vol_pts,
     %                           0 .5 .5];
 
     vol_wg 		   = .25*ones(8,1);
-    face_quad_coef = [[repmat(measFacesE(2:5)/3,3,1);zeros(6,4)],measFacesE(1)/36*[1; 4; 1; 4; 16; 4; 1; 4; 1]];
+    face_quad_coef = [[repmat(measFacesE(2:5)/3,3,1);zeros(6,4)],measFacesE(1)/36*[1; 1; 1; 1; 4; 4; 4; 4; 16]];
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     %%                              /                            \
     %%                              | m(f2) m(f3) m(f4) m(f5)  1 | 
-    %%                              | m(f2) m(f3) m(f4) m(f5)  4 |
     %%                              | m(f2) m(f3) m(f4) m(f5)  1 |
-    %%                              |   0     0     0     0    4 |
-    %%   face_quad_coef =           |   0     0     0     0   16 |
-    %%                              |   0     0     0     0    4 |
+    %%                              | m(f2) m(f3) m(f4) m(f5)  1 |
     %%                              |   0     0     0     0    1 |
+    %%   face_quad_coef =           |   0     0     0     0    4 |
     %%                              |   0     0     0     0    4 |
-    %%                              |   0     0     0     0    1 |
+    %%                              |   0     0     0     0    4 |
+    %%                              |   0     0     0     0    4 |
+    %%                              |   0     0     0     0   16 |
     %%                              \                            /
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     measE         			    = abs(det_M_Element)/3;
