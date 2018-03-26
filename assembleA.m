@@ -190,23 +190,36 @@ function [res] = assembleA(num_faces)
       normalFacesE     = global_normals(:,elements_by_faces(el,2:end));
       measFacesE       = global_meas_faces(elements_by_faces(el,2:end));
 
-      face_pts = zeros(3,21);
-      
-      face = vertices(:,faces(elements_by_faces(el,2),2:4));
-      face_pts(:,1:3) = (face + shift(face,1,2))/2; 
+      face_pts = {};
+
+
+      for f = 1: SEGUIR ACA
+                                                      % 2:(1 + type--of--face)   
+        face = vertices(:,faces(elements_by_faces(el,2),2:1+faces(elements_by_faces(el,2),1)));
+        face_pts(elements_by_faces(el,2)) = (face + shift(face,1,2))/2; 
+        face = vertices(:,faces(elements_by_faces(el,3),2:1+faces(elements_by_faces(el,3),1)));
+        face_pts(elements_by_faces(el,3)) = (face + shift(face,1,2))/2; 
     
-      face = vertices(:,faces(elements_by_faces(el,3),2:4));
-      face_pts(:,4:6) = (face + shift(face,1,2))/2; 
-      
-      face = vertices(:,faces(elements_by_faces(el,4),2:4));
-      face_pts(:,7:9) = (face + shift(face,1,2))/2; 
+        face = vertices(:,faces(elements_by_faces(el,4),2:1+faces(elements_by_faces(el,4),1)));
+        face_pts(elements_by_faces(el,4)) = (face + shift(face,1,2))/2; 
+  
+        face = vertices(:,faces(elements_by_faces(el,5),2:1+faces(elements_by_faces(el,5),1)));
+        face_pts(elements_by_faces(el,5)) = (face + shift(face,1,2))/2; 
+  
+        ******** riesgo de mala practica. pasar por los indices de las caras.
+        %face_pts(:,13:16) = P(:,1:4);
+        %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
+        %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
+  
+        face = vertices(:,faces(elements_by_faces(el,6),2:1+faces(elements_by_faces(el,6),1)));
+  
+        face_pts(elements_by_faces(el,6)) = 
+  
+        %face_pts(:,13:16) = P(:,1:4);
+        %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
+        %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
 
-      face = vertices(:,faces(elements_by_faces(el,5),2:4));
-      face_pts(:,10:12) = (face + shift(face,1,2))/2; 
-
-      face_pts(:,13:16) = P(:,1:4);
-      face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
-      face_pts(:,21)    = (P(:,1) + P(:,3))/2;
+      end
 
 **********SEGUIR CON ESTO
       lo que faltaría es la constatacion de este orden que tomo 
@@ -275,8 +288,8 @@ function [res] = assembleA(num_faces)
     else 
       error('invalid number of vertices. elements ' + num2str(el));    
     end
-
-    out = assmbl_local{n_VERT}(Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    face_indices = elements_by_faces(el,:);
+    out = assmbl_local{n_VERT}(face_indices,Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
 
 %    deter         = abs(det(M_Element));
 %    % TODO: with formula base x height / 3 ??;

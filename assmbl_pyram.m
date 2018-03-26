@@ -1,6 +1,6 @@
 %% assmbl_pyram: function description
 %% normalFacesE: the last is the rectangle
-function [outputs] = assmbl_pyram(Mdistances,det_M_Element,vol_pts,face_pts,P0,normalFacesE,measFacesE)
+function [outputs] = assmbl_pyram(face_indices,Mdistances,det_M_Element,vol_pts,face_pts,P0,normalFacesE,measFacesE)
     % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
     n_face_pts              = [3,3,3,3,9];
     
@@ -26,8 +26,8 @@ function [outputs] = assmbl_pyram(Mdistances,det_M_Element,vol_pts,face_pts,P0,n
 %    %                           0 0   0;
     %                           0 .5 .5];
 
-    vol_wg 					        = .25*ones(8,1);
-    face_quad_coef          = [[repmat(measFacesE(2:5)/3,3,1);zeros(6,4)],measFacesE(1)/36*[1; 4; 1; 4; 16; 4; 1; 4; 1]];
+    vol_wg 		   = .25*ones(8,1);
+    face_quad_coef = [[repmat(measFacesE(2:5)/3,3,1);zeros(6,4)],measFacesE(1)/36*[1; 4; 1; 4; 16; 4; 1; 4; 1]];
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     %%                              /                            \
     %%                              | m(f2) m(f3) m(f4) m(f5)  1 | 
@@ -43,7 +43,7 @@ function [outputs] = assmbl_pyram(Mdistances,det_M_Element,vol_pts,face_pts,P0,n
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     measE         			    = abs(det_M_Element)/3;
     quad_nrmlztn  			    = measE/2;    
-    rescale_factor 				  = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
+    rescale_factor 				= 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
     clear('Mdistances');
 %   rescale_factor  		    = 1/diameter;
     
@@ -52,7 +52,7 @@ function [outputs] = assmbl_pyram(Mdistances,det_M_Element,vol_pts,face_pts,P0,n
     
 
 
-    we_potentials  			    = zeros(8, 4);
+    we_potentials  			= zeros(8, 4);
     we_basis                = zeros(3, 4, 8);
 
     for l = 1:8
@@ -112,7 +112,7 @@ en este archivo la primera cara es cuadrilat
     %% loop F
     for face = 1:5
       for pts = 1:n_face_pts{n_VERT}(face)
-        p           = WE_potentials(diameter, centrosid, face_pts(:, pts, face), n_VERT);
+        p           = WE_potentials(diameter, centroid, face_pts(:, pts, face), n_VERT);
         w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
 
         %% Next line: we are assembling the quadrature by columns
@@ -126,7 +126,7 @@ en este archivo la primera cara es cuadrilat
     %'max difference between G and B*D. Page 19 on Drive'
     %max(max(abs(int_E_w_w - check_)))
 
-    PiW       = D*Pi_zero_star; %% item 14, page 68.
+    PiW     = D*Pi_zero_star; %% item 14, page 68.
     %% next lines: build local matrix K 11.3 page 69
     %% computability term.
 %    K_comp_a  = Pi_zero_star.' * int_E_w_w * Pi_zero_star;
