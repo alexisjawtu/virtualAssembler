@@ -1,57 +1,39 @@
 %% assmbl_pyram: function description
 %% normalFacesE: the last is the rectangle
-function [outputs] = assmbl_pyram(face_indices,Mdistances,det_M_Element,vol_pts,face_pts,P0,normalFacesE,measFacesE)
+function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Element,vol_pts,face_pts,P0,normalFacesE,measFacesE)
+    % face_pts is a cell.
     % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
-    n_face_pts              = [3,3,3,3,9];
-    
-
-    %pts_of_faces          	= zeros(3,9,5);
-    %pts_of_faces(:,:,5)   	= [0 .5 1  0 .5  1 0 .5 1;
-    %                           0  0 0 .5 .5 .5 1  1 1; 
-    %                           0  0 0  0  0  0 0  0 0];
-%
-%  	%pts_of_faces(:,1:3,1) 	= [0 0 0;
-%    %                           .5 .5 0;
-%    %                           0 .5 .5];
-%
-%	  %pts_of_faces(:,1:3,2) 	= [.5 .5 0;
-%    %                           1 .5 .5;
-%    %                           0 .5 .5];
-%
-%  	%pts_of_faces(:,1:3,3) 	= [1 .5 .5;
-%    %                           .5 .5 0;
-%    %                           0 .5 .5];
-%
-%  	%pts_of_faces(:,1:3,4) 	= [.5 .5 0;
-%    %                           0 0   0;
-    %                           0 .5 .5];
+    %
+    %%   face_quad_coef =    |m(fi)| in case of triangle
+    %                        |m(fi)|
+    %                        |m(fi)|
+    %
+    %%   face_quad_coef =    |1 | in case of rectangle
+    %                        |1 |
+    %                        |1 |
+    %                        |1 |
+    %                        |4 |
+    %                        |4 |
+    %                        |4 |
+    %                        |4 |
+    %                        |16|
 
     vol_wg 		   = .25*ones(8,1);
-    face_quad_coef = [[repmat(measFacesE(2:5)/3,3,1);zeros(6,4)],measFacesE(1)/36*[1; 1; 1; 1; 4; 4; 4; 4; 16]];
-    %%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%                              /                            \
-    %%                              | m(f2) m(f3) m(f4) m(f5)  1 | 
-    %%                              | m(f2) m(f3) m(f4) m(f5)  1 |
-    %%                              | m(f2) m(f3) m(f4) m(f5)  1 |
-    %%                              |   0     0     0     0    1 |
-    %%   face_quad_coef =           |   0     0     0     0    4 |
-    %%                              |   0     0     0     0    4 |
-    %%                              |   0     0     0     0    4 |
-    %%                              |   0     0     0     0    4 |
-    %%                              |   0     0     0     0   16 |
-    %%                              \                            /
-    %%%%%%%%%%%%%%%%%%%%%%%%%%
-    measE         			    = abs(det_M_Element)/3;
-    quad_nrmlztn  			    = measE/2;    
-    rescale_factor 				= 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
+    face_quad_coef = {};
+    for index = 1:5
+        face_quad_coef(face_indices(index)) = repmat(measFacesE(index)/3,3,1);
+    end
+    'debug: assmbl_pyram::26'
+    face_indices(find(face_types == 4))
+    face_quad_coef(face_indices(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16];
+    measE                       = abs(det_M_Element)/3;
+    quad_nrmlztn                = measE/2;    
+    rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
     clear('Mdistances');
-%   rescale_factor  		    = 1/diameter;
-    
 
+    'debug: assmbl_pyram::34'
     face_pts
     
-
-
     we_potentials  			= zeros(8, 4);
     we_basis                = zeros(3, 4, 8);
 
@@ -65,28 +47,30 @@ function [outputs] = assmbl_pyram(face_indices,Mdistances,det_M_Element,vol_pts,
     for r = 1:4
       for k = 1:4
         %% ( (wr*wk)(p1), ..., (wr*wk)(p8) )
-        vals            = reshape(dot(we_basis(:,r,:), we_basis(:,k,:), 1), 1, 8);  
+        vals            = reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,8);
         int_E_w_w(r,k)  = vals*vol_wg;
       end
     end
     
-    int_E_w_w *= quad_nrmlztn;  %% hasta aca esta  y chequeado a mano
+    int_E_w_w *= quad_nrmlztn; 
 
     %% READ: -quad_nrmlztn*we_potentials.'*vol_wg/measE  
     %% -1/mu(E) * int_E q_j
     b1 = repmat(-we_potentials.'*vol_wg/2,1,5);
     b2 = zeros(4,5);
     we_potentials_faces = zeros (4,9,5);
-    for face = 1:5
-      for pt = 1:n_face_pts(face)  %% square face first
-        we_potentials_faces(:,pt,face) = WE_potentials(face_pts(:,pt,face),5).';
+    for f = 1:5
+      for pt = 1:size(face_pts,2) 
+        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{face_indices[f]}(:,pt),5).';
       end
     end
-
+    %% now the evaluated arrays have 1 to 5 face numbers.
     for f = 1:5
-      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(:,f);   %% ( 4 x 1)
+      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(face_indices(f)); %% (4x1)
     end
 
+
+SEGUIR ACA : este repmat requiere reordenamiento?
     b2    = b2./repmat(measFacesE,4,1);
     b     = b1 + b2;
     PROJ  = int_E_w_w\b;
@@ -94,9 +78,6 @@ function [outputs] = assmbl_pyram(face_indices,Mdistances,det_M_Element,vol_pts,
     K_comput  = PROJ.' * int_E_w_w * PROJ;
 
     %% for the stabilizating bilinear form
-
-OJO CON LA NORMAL local:
-en este archivo la primera cara es cuadrilat
 
     D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
 

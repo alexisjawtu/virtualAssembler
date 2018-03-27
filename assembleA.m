@@ -166,8 +166,7 @@ function [res] = assembleA(num_faces)
         fprintf('pyramid %d with vertices in different order', el);
         exit;
       end
-      % sum of 2 tetrahedral cubatures from GELLERT AND HARBORD 1991
-      
+      %% sum of 2 tetrahedral cubatures from GELLERT AND HARBORD 1991
       %% tetrahedron: p_0 p_1 p_2 p_4
       % cubature points
       vol_pts(:,1) = const_a*P(:,1) + const_b*sum(vertices(:,elements(el,[3,4,6])),2);
@@ -196,22 +195,11 @@ function [res] = assembleA(num_faces)
         face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
         if faces(elements_by_faces(el,f),1) == 3
           face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
-        else
-          face_pts(elements_by_faces(el,f)) = face, SEGUIR ACA: YA REORDENE LOS FACE_QUAD_COEFS !!
-          %face_pts(:,13:16) = P(:,1:4);
-          %face_pts(:,17:20) = (P(:,1:4)+ shift(P(:,1:4),1,2))/
-          %face_pts(:,21)    = (P(:,1) + P(:,3))/2;
+        else %% see the structure of face_quad_coef in the comments in assembl_pyram
+          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
         end
-
       end
 
-**********SEGUIR CON ESTO
-      lo que faltaría es la constatacion de este orden que tomo 
-      para armar face_pts y el orden en normalFacesE
-**********
-
-      %face_quad_coef = [measFacesE(1)/36*prism_face_coefs, [repmat(measFacesE(2:5)/3,3,1);zeros(6,4)]];
-   
     elseif n_VERT == 4
 
       P = vertices(:,elements(el,2:5));
@@ -273,7 +261,7 @@ function [res] = assembleA(num_faces)
       error('invalid number of vertices. elements ' + num2str(el));    
     end
     face_indices = elements_by_faces(el,:);
-    out = assmbl_local{n_VERT}(face_indices,Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    out = assmbl_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
 
 %    deter         = abs(det(M_Element));
 %    % TODO: with formula base x height / 3 ??;

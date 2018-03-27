@@ -1,5 +1,5 @@
 function [y] = WE_potentials(x, n_vert)  
-  if n_vert == 4                 %  obs: dot is faster
+  if n_vert == 4            
     p = [(x).', dot(x,x)/(2)];
 %   p = [(x).', diameter*0.5*sum(((x)/diameter).^2)];
   elseif n_vert == 5
