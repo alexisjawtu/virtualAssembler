@@ -64,19 +64,19 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %% READ: -quad_nrmlztn*we_potentials.'*vol_wg/measE  
     %% -1/mu(E) * int_E q_j
     b1 = repmat(-we_potentials.'*vol_wg/2,1,5);
-    b2 = zeros(4,5);
+    % Boundary term. Formerly: b2_{i,j} = Int_{fi} qj dS. page 62 in the middle.
+    b2 = zeros(4,5); 
     we_potentials_faces = zeros (4,9,5);
     for f = 1:5
       for pt = 1:size(face_pts,2) 
-        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{face_indices[f]}(:,pt),5).';
+        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{face_indices[f+1]}(:,pt),5).';
       end
     end
     %% now the evaluated arrays have 1 to 5 face numbers.
     for f = 1:5
-      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(face_indices(f)); %% (4x1)
+      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(face_indices(f+1)); %% (4x1)
     end
 
-SEGUIR ACA : este repmat requiere reordenamiento?
     b2    = b2./repmat(measFacesE,4,1);
     b     = b1 + b2;
     PROJ  = int_E_w_w\b;
@@ -85,46 +85,38 @@ SEGUIR ACA : este repmat requiere reordenamiento?
 
     %% for the stabilizating bilinear form
 
+
+#### SEGUIR ACA #####: la linea 91 iria dentro de un ciclo como el de la linea 109?
+
     D(face,:) += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
 
-    Proj_in_base_Vh = D*PROJ;
-    K_stab          = rescale_factor * (eye(5) - PiW).'*(eye(5) - PiW);
+    Proj_in_base_W  = D*PROJ;
+    K_stab          = rescale_factor * (eye(5) - Proj_in_base_W).'*(eye(5) - Proj_in_base_W);
+    A               = K_comput + K_stab;
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-    W         = ones(1,5);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-    % Boundary term. B2_{i,j} = Int_{fi} qj dS. page 62 in the middle.
-    B2        = zeros(4,5); 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
     % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
     D         = zeros(5,4);
     %% loop F
     for face = 1:5
       for pts = 1:n_face_pts{n_VERT}(face)
-        p           = WE_potentials(diameter, centroid, face_pts(:, pts, face), n_VERT);
+%        p           = WE_potentials(diameter, centroid, face_pts(:, pts, face), n_VERT);
         w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
 
         %% Next line: we are assembling the quadrature by columns
-        B2(:,face) += face_quad_coef(pts,face) * p.';
+%        B2(:,face) += face_quad_coef(pts,face) * p.';
         %% Next line: item 13 page 68. the quadrature
         D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
       end
     end
 
-    %format long;
-    %'max difference between G and B*D. Page 19 on Drive'
-    %max(max(abs(int_E_w_w - check_)))
-
-    PiW     = D*Pi_zero_star; %% item 14, page 68.
-    %% next lines: build local matrix K 11.3 page 69
-    %% computability term.
-%    K_comp_a  = Pi_zero_star.' * int_E_w_w * Pi_zero_star;
-%    temp_mtrx = eye(size(PiW,1)) - PiW;
-%    %% stability term.
-%
-%    K_stab_a(5)  = rescale_factor * measE * temp_mtrx.'*temp_mtrx; 
-%
-%    clear('temp_mtrx');
-%
-%    A = K_comp_a + K_stab_a{n_VERT};
-%
-	outputs = {int_E_w_w, measE}
+	outputs = A; %{int_E_w_w, measE}
 endfunction
