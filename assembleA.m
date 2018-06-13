@@ -77,10 +77,10 @@ function [res] = assembleA(num_faces)
 
   fprintf('Global normals and measures, %d faces\n', num_fc);
 
-  assmbl_local = {};
-  assmbl_local(4) = @assmbl_tetr;
-  assmbl_local(5) = @assmbl_pyram;
-  assmbl_local(6) = @assmbl_prism;
+  assemble_local = {};
+  assemble_local(4) = @assemble_tetr;
+  assemble_local(5) = @assemble_pyram;
+  assemble_local(6) = @assemble_prism;
   
   global_normals       = cross(vertices(:,faces(:,3))-vertices(:,faces(:,2)),vertices(:,faces(:,4))-vertices(:,faces(:,2)));
   global_norms         = norm(global_normals,2,'columns');  
@@ -261,7 +261,7 @@ function [res] = assembleA(num_faces)
       error('invalid number of vertices. elements ' + num2str(el));    
     end
     face_indices = elements_by_faces(el,:);
-    out = assmbl_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    out = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
 
 %    deter         = abs(det(M_Element));
 %    % TODO: with formula base x height / 3 ??;

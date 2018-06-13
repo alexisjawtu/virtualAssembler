@@ -1,7 +1,10 @@
 %% assmbl_pyram: function description
 %% normalFacesE: the last is the rectangle
 function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Element,vol_pts,face_pts,P0,normalFacesE,measFacesE)
-    % face_pts is a cell.
+    %
+    %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
+    %% those of elements_by_faces.txt
+    %
     % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
     %
     %%   face_quad_coef =    |m(fi)| in case of triangle
@@ -17,6 +20,10 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %                        |4 |
     %                        |4 |
     %                        |16|
+    %
+    %
+
+
 
     vol_wg 		   = .25*ones(8,1);
     face_quad_coef = {};
@@ -69,7 +76,6 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
       b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(face_indices(f)); %% (4x1)
     end
 
-
 SEGUIR ACA : este repmat requiere reordenamiento?
     b2    = b2./repmat(measFacesE,4,1);
     b     = b1 + b2;
@@ -79,10 +85,10 @@ SEGUIR ACA : este repmat requiere reordenamiento?
 
     %% for the stabilizating bilinear form
 
-    D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
+    D(face,:) += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
 
     Proj_in_base_Vh = D*PROJ;
-    K_stab = rescale_factor * (eye(5) - PiW).'*(eye(5) - PiW);
+    K_stab          = rescale_factor * (eye(5) - PiW).'*(eye(5) - PiW);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
     W         = ones(1,5);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
@@ -121,4 +127,4 @@ SEGUIR ACA : este repmat requiere reordenamiento?
 %    A = K_comp_a + K_stab_a{n_VERT};
 %
 	outputs = {int_E_w_w, measE}
-endfunction1
+endfunction
