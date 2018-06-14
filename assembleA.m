@@ -51,9 +51,7 @@
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
 function [res] = assembleA(num_faces)
-  % clf;   %% child graphics
-  % hold on;
-
+%% num_faces is the number of faces in the whole mesh
 
   dict_save = {};
   dict_save2 = {};
@@ -152,16 +150,12 @@ function [res] = assembleA(num_faces)
     h = waitbar(el/num_el);
     n_VERT    = elements(el,1);         %% to know which type of element
     vol_pts   = zeros(3,n_vol_pts{n_VERT});
+    
+    P = vertices(:,elements(el,2:(n_VERT+1)));
+
     if n_VERT == 5 
       %% P(:,6) is the top of the pyramid
-      P = vertices(:,elements(el,2:6));     
-%      *************
-%      p_0 = vertices(:,elements(el,2)); 
-%      p_1 = vertices(:,elements(el,3));
-%      p_2 = vertices(:,elements(el,4));
-%      p_3 = vertices(:,elements(el,5));
-%      p_4 = vertices(:,elements(el,6));
-%      *************
+           
       if ~are_coplanar (P(:,1:4))
         fprintf('pyramid %d with vertices in different order', el);
         exit;
@@ -202,14 +196,6 @@ function [res] = assembleA(num_faces)
 
     elseif n_VERT == 4
 
-      P = vertices(:,elements(el,2:5));
-%*************
-%      p_0 = vertices(:,elements(el,2));
-%      p_1 = vertices(:,elements(el,3));
-%      p_2 = vertices(:,elements(el,4));
-%      p_3 = vertices(:,elements(el,5));
-%*************
-      
       % tetrahedral cubature points from GELLERT AND HARBORD 1991
       % direct from the physical vertices
       
@@ -233,16 +219,6 @@ function [res] = assembleA(num_faces)
 
     elseif n_VERT == 6
 
-      P = vertices(:,elements(el,2:7));
-%***********
-%      p_0 = vertices(:,elements(el,2));
-%      p_1 = vertices(:,elements(el,3));
-%      p_2 = vertices(:,elements(el,4));
-%      p_3 = vertices(:,elements(el,5));
-%      p_4 = vertices(:,elements(el,6));
-%      p_5 = vertices(:,elements(el,7));
-%***********
-
       %Mcoords     = [P(:,1),P(:,2),P(:,3),P(:,4),P(:,5),P(:,6)];
 
       Mdistances  = [P(:,2)-P(:,1),P(:,3)-P(:,1),P(:,4)-P(:,1), P(:,1)-P(:,5), P(:,1)-P(:,6), P(:,2)-P(:,3), P(:,2)-P(:,4), P(:,2)-P(:,5), P(:,2)-P(:,6), P(:,3)-P(:,4), P(:,3)-P(:,5), P(:,3)-P(:,6), P(:,4)-P(:,5), P(:,4)-P(:,6), P(:,5)-P(:,6)];
@@ -254,14 +230,57 @@ function [res] = assembleA(num_faces)
       
       %face_quad_coef   = [(prism_face_coefs*measFacesE(1:3))/36, [repmat(measFacesE(4:5)/3,3,1);zeros(6,2)]];
 
-      ************* aca hacerlos tambien en el fisico
-      vol_pts          = M_Element * quad_pts_prism + P(:,1);
-      ***********************************************
+      %% TODO: benchmark between this and (P1 + P2)/2
+      vol_pts      = zeros(3,9);
+      vol_pts(:,1) = mean([P(:,1),P(:,3)],2);
+      vol_pts(:,2) = mean([P(:,2),P(:,3)],2);
+      vol_pts(:,3) = mean([P(:,2),P(:,1)],2);
+      vol_pts(:,7) = mean([P(:,4),P(:,6)],2);
+      vol_pts(:,8) = mean([P(:,5),P(:,6)],2);
+      vol_pts(:,9) = mean([P(:,5),P(:,4)],2);
+      vol_pts(:,4) = mean([vol_pts(:,7),vol_pts(:,1)],2);
+      vol_pts(:,5) = mean([vol_pts(:,8),vol_pts(:,2)],2);
+      vol_pts(:,6) = mean([vol_pts(:,9),vol_pts(:,3)],2);
+
     else 
       error('invalid number of vertices. elements ' + num2str(el));    
     end
     face_indices = elements_by_faces(el,:);
-    out = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    
+    local = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    
+    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),elements_by_faces(el,2:n_Faces{n_VERT}+1)) += local; 
+    
+    W         = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    K(num_faces + el,elements_by_faces(el,2:n_Faces{n_VERT}+1)) = W;
+    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),num_faces + el) = W.';
+
+%%% Check if the matrix has all ones in the last rows and columns
+
+    clear('Mdistances');
+
+  end    %% end of main for
+  close(h);
+
+
+  res = K;
+  a=toc;
+  toc
+  csvwrite('TIME',a);
+
+endfunction
+
+%% T: just for plotting purposes
+function [y] = T(M,xE,x)
+  y = M*x+xE;
+endfunction
+
+
+
+
+
+
+
 
 %    deter         = abs(det(M_Element));
 %    % TODO: with formula base x height / 3 ??;
@@ -273,8 +292,6 @@ function [res] = assembleA(num_faces)
 %
 %    diameter = max(norm(Mdistances,2,'columns'));
 %
-    clear('Mdistances');
-
 %    rescale_factor(5) = 1/diameter;
 %    
 %    %% obs: matrix product needs to be reshaped after:
@@ -298,7 +315,6 @@ function [res] = assembleA(num_faces)
 %
 %    H         = measE;        %% before eqref(45) page 62
 %    % W       = measFacesE  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-%    W         = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
 %    Hsharp    = quad_nrmlztn*potentials.'*vol_wg{n_VERT}; %% integrals of the potentials over E; int_E_Q
 %                                            %% page 63 in the middle    
 %    inverse_H = H\eye(size(H,1));
@@ -339,16 +355,9 @@ function [res] = assembleA(num_faces)
 %      size(B1)
 %      size(B2)
 %    end
-%%% seguir ACA
 %    B            = B1 + B2;    %% see item 9 page 68
 
 %    Pi_zero_star = int_E_w_w\B;  %% item 12, page 68. page 19 on alexis google drive.
-%
-%    check_       = B*D; %% item 15, page 69.
-%
-%    %format long;
-%    %'max difference between G and B*D. Page 19 on Drive'
-%    %max(max(abs(int_E_w_w - check_)))
 %
 %    PiW       = D*Pi_zero_star; %% item 14, page 68.
 %    %% next lines: build local matrix K 11.3 page 69
@@ -358,20 +367,8 @@ function [res] = assembleA(num_faces)
 %    %% stability term.
 %
 %    K_stab_a(5)  = rescale_factor{5} * measE * temp_mtrx.'*temp_mtrx; 
-%
-%    clear('temp_mtrx');
-%
 %    A = K_comp_a + K_stab_a{n_VERT};
 
-
-
-%    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),elements_by_faces(el,2:n_Faces{n_VERT}+1)) += A; 
-%
-%    K(num_faces + el,elements_by_faces(el,2:n_Faces{n_VERT}+1)) = W;
-%    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),num_faces + el) = W.';
-
-  end    %% end of main for
-  close(h);
 
 %  test_verts = vertices(:,elements(3,2:5));
 %  save('vertices_element_3', 'test_verts');
@@ -388,15 +385,3 @@ function [res] = assembleA(num_faces)
 %  face4 = vertices(:,faces(48,2:4));
 %  face5 = vertices(:,faces(41,2:5));
 %  save('faces_element_14', 'face1', 'face2', 'face3', 'face4', 'face5');
-
-  res = K;
-  a=toc;
-  toc
-  csvwrite('TIME',a);
-
-endfunction
-
-%% T: just for plotting purposes
-function [y] = T(M,xE,x)
-  y = M*x+xE;
-endfunction

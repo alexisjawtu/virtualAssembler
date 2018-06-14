@@ -20,10 +20,6 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %                        |4 |
     %                        |4 |
     %                        |16|
-    %
-    %
-
-
 
     vol_wg 		   = .25*ones(8,1);
     face_quad_coef = {};
@@ -85,38 +81,19 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
 
     %% for the stabilizating bilinear form
 
-
-#### SEGUIR ACA #####: la linea 91 iria dentro de un ciclo como el de la linea 109?
-
-    D(face,:) += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
+    % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
+    D         = zeros(5,4);
+        
+    for face = 1:5
+      for pts = 1:n_face_pts{n_VERT}(face)
+        w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
+        D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
+      end
+    end
 
     Proj_in_base_W  = D*PROJ;
     K_stab          = rescale_factor * (eye(5) - Proj_in_base_W).'*(eye(5) - Proj_in_base_W);
     A               = K_comput + K_stab;
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
-    % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
-    D         = zeros(5,4);
-    %% loop F
-    for face = 1:5
-      for pts = 1:n_face_pts{n_VERT}(face)
-%        p           = WE_potentials(diameter, centroid, face_pts(:, pts, face), n_VERT);
-        w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
-
-        %% Next line: we are assembling the quadrature by columns
-%        B2(:,face) += face_quad_coef(pts,face) * p.';
-        %% Next line: item 13 page 68. the quadrature
-        D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
-      end
-    end
 
 	outputs = A; %{int_E_w_w, measE}
 endfunction
