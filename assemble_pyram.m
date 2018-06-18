@@ -29,6 +29,16 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     'debug: assmbl_pyram::26'
     face_indices(find(face_types == 4))
     face_quad_coef(face_indices(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16];
+
+
+        FALTA lo de *measFacesE(i)/36
+
+
+
+
+
+
+
     measE                       = abs(det_M_Element)/3;
     quad_nrmlztn                = measE/2;    
     rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter

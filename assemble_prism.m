@@ -21,23 +21,21 @@ function [outputs] = assmbl_prism(face_indices,face_types,Mdistances,det_M_Eleme
   %                        |4 |
   %                        |16|	
 
-
+  clear('Mdistances');
 
   face_quad_coef = repmat([1;1;1;1;4;4;4;4;16],1,5);
+  **********SEGUIR ACA**********
+***** y Ver si quedo bien ahora que no es un cell sino una matriz
+  face_quad_coef(:,find(==4)) = face_quad_coef(:,find(==4)).*(measFacesE(find(==4)))/36);
+
+
   triangles = find(face_types == 3);
   face_quad_coef(:,face_indices(triangles)) = (measFacesE(triangles)/3,zeros(1,6)).';
 
-
-
   measE                       = abs(det_M_Element)/3;
+
   quad_nrmlztn                = measE/2;    
-  rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
-  clear('Mdistances');
 
-
-*****SEGUIR ACA: que carajo era esto del 1/36? Ver si quedo bien ahora que no es un cell sino una matriz
-
-  face_quad_coef   = [(prism_face_coefs*measFacesE(1:3))/36, [repmat(measFacesE(4:5)/3,3,1);zeros(6,2)]];
 
   outputs = 1;
 endfunction
