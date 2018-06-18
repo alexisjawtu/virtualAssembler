@@ -58,7 +58,6 @@ function [res] = assembleA(num_faces)
 
 
   quad_pts_prism    = [.5 0 0; .5 .5 0; 0 .5 0; .5 0 .5; .5 .5 .5; 0 .5 .5; .5 0 1; .5 .5 1; 0 .5 1].';
-  prism_face_coefs  = [1; 4; 1; 4; 16; 4; 1; 4; 1]; %% weights over faces
 
   % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
   const_a     = .58541019662496852;
@@ -215,7 +214,7 @@ function [res] = assembleA(num_faces)
       normalFacesE     = global_normals(:,elements_by_faces(el,2:5));
       measFacesE       = global_meas_faces(elements_by_faces(el,2:5));      
       
-      %face_quad_coef = [measFacesE;measFacesE;measFacesE]/3;
+      
 
     elseif n_VERT == 6
 
@@ -228,8 +227,6 @@ function [res] = assembleA(num_faces)
       normalFacesE     = global_normals(:,elements_by_faces(el,2:end));
       measFacesE       = global_meas_faces(elements_by_faces(el,2:end));
       
-      %face_quad_coef   = [(prism_face_coefs*measFacesE(1:3))/36, [repmat(measFacesE(4:5)/3,3,1);zeros(6,2)]];
-
       %% TODO: benchmark between this and (P1 + P2)/2
       vol_pts      = zeros(3,9);
       vol_pts(:,1) = mean([P(:,1),P(:,3)],2);
@@ -241,6 +238,19 @@ function [res] = assembleA(num_faces)
       vol_pts(:,4) = mean([vol_pts(:,7),vol_pts(:,1)],2);
       vol_pts(:,5) = mean([vol_pts(:,8),vol_pts(:,2)],2);
       vol_pts(:,6) = mean([vol_pts(:,9),vol_pts(:,3)],2);
+
+      face_pts = {};
+
+      for f = 2:(n_Faces{n_VERT}+1)                   
+      % list of vertices of the face (3x3 or 3x4)       2:(1 + type--of--face)   
+        face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
+        if faces(elements_by_faces(el,f),1) == 3
+          % TODO: use the mean instead of (a+b)/2
+          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
+        else %% see the structure of face_quad_coef in the comments in assembl_pyram
+          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
+        end
+      end
 
     else 
       error('invalid number of vertices. elements ' + num2str(el));    

@@ -7,9 +7,9 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %
     % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
     %
-    %%   face_quad_coef =    |m(fi)| in case of triangle
-    %                        |m(fi)|
-    %                        |m(fi)|
+    %%   face_quad_coef =    |meas(fi)/3| in case of triangle
+    %                        |meas(fi)/3|
+    %                        |meas(fi)/3|
     %
     %%   face_quad_coef =    |1 | in case of rectangle
     %                        |1 |
@@ -21,7 +21,7 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %                        |4 |
     %                        |16|
 
-    vol_wg 		   = .25*ones(8,1);
+    vol_wg 		   = .25*ones(8,1); % the weights for the volume quadrature points
     face_quad_coef = {};
     for index = 1:5
         face_quad_coef(face_indices(index)) = repmat(measFacesE(index)/3,3,1);
