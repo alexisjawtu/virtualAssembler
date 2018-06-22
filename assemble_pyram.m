@@ -11,42 +11,28 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
     %                        |meas(fi)/3|
     %                        |meas(fi)/3|
     %
-    %%   face_quad_coef =    |1 | in case of rectangle
-    %                        |1 |
-    %                        |1 |
-    %                        |1 |
-    %                        |4 |
-    %                        |4 |
-    %                        |4 |
-    %                        |4 |
-    %                        |16|
+    %%   face_quad_coef =    (1/36)*|1 | in case of rectangle
+    %                               |1 |
+    %                               |1 |
+    %                               |1 |
+    %                               |4 |
+    %                               |4 |
+    %                               |4 |
+    %                               |4 |
+    %                               |16|
 
     vol_wg 		   = .25*ones(8,1); % the weights for the volume quadrature points
     face_quad_coef = {};
     for index = 1:5
         face_quad_coef(face_indices(index)) = repmat(measFacesE(index)/3,3,1);
     end
-    'debug: assmbl_pyram::26'
-    face_indices(find(face_types == 4))
-    face_quad_coef(face_indices(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16];
-
-
-        FALTA lo de *measFacesE(i)/36
-
-
-
-
-
-
+    face_quad_coef(face_indices(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
 
     measE                       = abs(det_M_Element)/3;
     quad_nrmlztn                = measE/2;    
     rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
     clear('Mdistances');
 
-    'debug: assmbl_pyram::34'
-    face_pts
-    
     we_potentials  			= zeros(8, 4);
     we_basis                = zeros(3, 4, 8);
 
