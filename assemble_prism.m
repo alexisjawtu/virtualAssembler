@@ -29,12 +29,10 @@ function [outputs] = assmbl_prism(face_indices,face_types,Mdistances,det_M_Eleme
   triangles = find(face_types == 3);
   face_quad_coef(:,face_indices(triangles)) = repmat([measFacesE(triangles)/3,zeros(1,6)].',1,3);
 
-prismatic_face_points =  SEGUIR ACA
-
-
-
-
-
+************
+SEGUIR ACA: ir a AssembleA y ver si el orden en el cell face_pts
+respeta el de face_quad_coef
+************
 
   measE                       = abs(det_M_Element)/3;
 
@@ -42,29 +40,3 @@ prismatic_face_points =  SEGUIR ACA
 
   outputs = 1;
 endfunction
-
-%prismatic_face_points          = zeros(3,9,5);
-prismatic_face_points(:,:,1)   = 
-[0 .5 1 0 .5  1 0 .5 1; 
- 0 0  0  0  0  0 0 0 0; 
- 0 0  0 .5 .5 .5 1 1 1];
-
-prismatic_face_points(:,:,2)   = 
-[1 .5 0 1 .5 0 1 .5 0; 
- 0 .5 1 0 .5 1 0 .5 1; 
- 0 0 0 .5 .5 .5 1 1 1];
-
-prismatic_face_points(:,:,3)   = 
-[0  0 0  0  0  0 0  0 0; 
- 0 .5 1  0 .5  1 0 .5 1; 
- 0  0 0 .5 .5 .5 1  1 1];
-
-prismatic_face_points(:,1:3,4) = 
-[.5 .5  0; 
-  0 .5 .5; 
-  0  0  0];
-
-prismatic_face_points(:,1:3,5) = 
-[.5 .5  0; 
-  0 .5 .5; 
-  1  1  1];
