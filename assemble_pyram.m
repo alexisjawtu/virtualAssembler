@@ -89,7 +89,6 @@ function [outputs] = assmbl_pyram(face_indices,face_types,Mdistances,det_M_Eleme
 
     Proj_in_base_W  = D*PROJ;
     K_stab          = rescale_factor * (eye(5) - Proj_in_base_W).'*(eye(5) - Proj_in_base_W);
-    A               = K_comput + K_stab;
+	outputs         = K_comput + K_stab;
 
-	outputs = A; %{int_E_w_w, measE}
 endfunction

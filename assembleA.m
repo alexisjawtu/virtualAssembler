@@ -224,8 +224,8 @@ function [res] = assembleA(num_faces)
 
       M_Element   = Mdistances(:,1:3);
 
-      normalFacesE     = global_normals(:,elements_by_faces(el,2:end));
-      measFacesE       = global_meas_faces(elements_by_faces(el,2:end));
+      normalFacesE     = global_normals(:,elements_by_faces(el,2:n_Faces{n_VERT}+1));
+      measFacesE       = global_meas_faces(elements_by_faces(el,2:n_Faces{n_VERT}+1));
       
       %% TODO: benchmark between this and (P1 + P2)/2
       vol_pts      = zeros(3,9);
