@@ -27,7 +27,7 @@ function [outputs] = assmbl_prism(face_indices,face_types,Mdistances,det_M_Eleme
   quadrilat = find(face_types==4);
   face_quad_coef(:,quadrilat) = face_quad_coef(:,quadrilat)*diag(measFacesE(quadrilat)/36);
   triangles = find(face_types == 3);
-  face_quad_coef(:,face_indices(triangles)) = repmat([measFacesE(triangles)/3,zeros(1,6)].',1,3);
+  face_quad_coef(:,face_indices(triangles)) = [repmat([measFacesE(triangles)/3],3,1);zeros(6,2)];
 
 ************
 SEGUIR ACA: ir a AssembleA y ver si el orden en el cell face_pts

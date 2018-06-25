@@ -255,9 +255,9 @@ function [res] = assembleA(num_faces)
     else 
       error('invalid number of vertices. elements ' + num2str(el));    
     end
-    face_indices = elements_by_faces(el,:);
+    face_indices  = elements_by_faces(el,2:n_Faces{n_VERT}+1);
     
-    local = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
+    local         = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
     
     K(elements_by_faces(el,2:n_Faces{n_VERT}+1),elements_by_faces(el,2:n_Faces{n_VERT}+1)) += local; 
     
