@@ -1,6 +1,6 @@
 %% assmbl_pyram: function description
 %% normalFacesE: the last is the rectangle
-function [outputs] = assmbl_pyram(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normalFacesE,measFacesE)
     %
     %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
     %% those of elements_by_faces.txt
@@ -42,16 +42,18 @@ function [outputs] = assmbl_pyram(vertices,face_indices,face_types,face_pts,norm
     vol_pts(:,7) = const_a*vertices(:,4) + const_b*sum(vertices(:,[1,3,5]),2);
     vol_pts(:,8) = const_a*vertices(:,5) + const_b*sum(vertices(:,[1,3,4]),2);
     %Mcoords    = [vertices(:,1), vertices(:,2), vertices(:,3), vertices(:,4), vertices(:,5)];
-    Mdistances = [vertices(:,2)-vertices(:,1), vertices(:,1)-vertices(:,3), vertices(:,4)-vertices(:,1), vertices(:,5)-vertices(:,1), vertices(:,2)-vertices(:,3), vertices(:,2)-vertices(:,4), vertices(:,5)-vertices(:,2), vertices(:,3)-vertices(:,4), vertices(:,3)-vertices(:,5), vertices(:,4)-vertices(:,5)];
+    Mdistances = [vertices(:,2)-vertices(:,1), vertices(:,1)-vertices(:,3),...
+                  vertices(:,4)-vertices(:,1), vertices(:,5)-vertices(:,1),...
+                  vertices(:,2)-vertices(:,3), vertices(:,2)-vertices(:,4),...
+                  vertices(:,5)-vertices(:,2), vertices(:,3)-vertices(:,4),...
+                  vertices(:,3)-vertices(:,5), vertices(:,4)-vertices(:,5)];
     M_Element = Mdistances(:, [3, 1, 4]);
 
     face_quad_coef = {};
     for index = 1:5
-        face_quad_coef(face_indices(index)) = repmat(measFacesE(index)/3,3,1);
+        face_quad_coef(faces_of_E(index)) = repmat(measFacesE(index)/3,3,1);
     end
-    face_quad_coef(face_indices(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
-
-
+    face_quad_coef(faces_of_E(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
 
     det_M_Element = det(M_Element);
 
@@ -88,12 +90,12 @@ function [outputs] = assmbl_pyram(vertices,face_indices,face_types,face_pts,norm
     we_potentials_faces = zeros (4,9,5);
     for f = 1:5
       for pt = 1:size(face_pts,2) 
-        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{face_indices[f+1]}(:,pt),5).';
+        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{faces_of_E(f)}(:,pt),5).';
       end
     end
     %% now the evaluated arrays have 1 to 5 face numbers.
     for f = 1:5
-      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(face_indices(f+1)); %% (4x1)
+      b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(faces_of_E(f)); %% (4x1)
     end
 
     b2    = b2./repmat(measFacesE,4,1);

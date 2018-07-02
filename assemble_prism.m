@@ -4,8 +4,6 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   %
   %% measFacesE in R(1x5)
   %
-  %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
-  %% those of elements_by_faces.txt
   %
   % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
   %
@@ -30,6 +28,20 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   %% so that we don't care of "preserving orders"
   %  face_quad_coef(:,quadrilat) = face_quad_coef(:,quadrilat)*diag(measFacesE(quadrilat)/36);
   %  face_quad_coef(:,triangles) = [repmat(measFacesE(triangles)/3,3,1);zeros(6,2)];
+  
+  %% this was in assembleA.m. It will be useful in future versions of the program.
+  %      face_pts = {};
+  %
+  %      for f = 2:(n_Faces{n_VERT}+1)                   
+  %      % list of vertices of the face (3x3 or 3x4)       2:(1 + type--of--face)   
+  %        face = vertices(:,faces(elements_by_faces(el,f),2:(1+faces(elements_by_faces(el,f),1))));
+  %        if faces(elements_by_faces(el,f),1) == 3
+  %          % TODO: use the mean instead of (a+b)/2
+  %          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
+  %        else %% see the structure of face_quad_coef in the comments in assembl_pyram
+  %          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
+  %        end
+  %      end
 
   n_vertices   = 6;
   n_vol_pts    = 9;
@@ -59,9 +71,8 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   end                                                                    
   
 SEGUIR ACA: 
-			**ver si la construccion de caras se puede hacer dentro de las
-			funciones elementales
 			**ver todo assembleA.m y borrar todo lo que no se use y controlar cada linea
+			** ver tema face_pts en programa prismas
 
   int_E_w_w = zeros(dim_Vh);   %% int_E < w_k; w_r > dx
   for r = 1:dim_Vh

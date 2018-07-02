@@ -114,6 +114,11 @@ function [res] = assembleA(num_faces)
   dim_WE(5)   = 4;  
   dim_WE(6)   = 5;  
 
+  %face_pts = {};
+  %face_pts(4)  = {};  
+  %face_pts(5)  = {};  
+  %face_pts(6)  = {};
+
   n_Faces(4)  = 4;  
   n_Faces(5)  = 5;  
   n_Faces(6)  = 5;
@@ -142,68 +147,33 @@ function [res] = assembleA(num_faces)
   tic
 
   for el = 1:num_el
-    h = waitbar(el/num_el);
-    n_VERT    = elements(el,1);      %% to know which type of element
+    h            = waitbar(el/num_el);
+    n_VERT       = elements(el,1);      %% to know which type of element
+    P            = vertices(:,elements(el,2:(n_VERT+1)));
+    normalFacesE = global_normals(:,elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
+    measFacesE   = global_meas_faces(elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
+    faces_of_E   = elements_by_faces(el,2:(n_Faces{n_VERT}+1));
     
-    P             = vertices(:,elements(el,2:(n_VERT+1)));
-
-    normalFacesE  = global_normals(:,elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
-    measFacesE    = global_meas_faces(elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
-    face_indices  = elements_by_faces(el,2:(n_Faces{n_VERT}+1));
-
-    if n_VERT == 5 
-    
-      face_pts = {};
-
-      for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
-        face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
-        if faces(elements_by_faces(el,f),1) == 3
-          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
-        else %% see the structure of face_quad_coef in the comments in assembl_pyram
-          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
-        end
+    face_pts = {};
+    for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
+      face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
+      if faces(elements_by_faces(el,f),1) == 3
+        face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
+      else %% see the structure of face_quad_coef in the comments in assembl_pyram
+        face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
       end
-
-    elseif n_VERT == 4
-
-    % tetrahedral cubature points from GELLERT AND HARBORD 1991
-    % direct from the physical vertices      
-      
-    %Mcoords      = [P(:,1),P(:,2),P(:,3),P(:,4)];
-     
-    elseif n_VERT == 6
-
-      face_pts = {};
-
-      for f = 2:(n_Faces{n_VERT}+1)                   
-      % list of vertices of the face (3x3 or 3x4)       2:(1 + type--of--face)   
-        face = vertices(:,faces(elements_by_faces(el,f),2:(1+faces(elements_by_faces(el,f),1))));
-        if faces(elements_by_faces(el,f),1) == 3
-          % TODO: use the mean instead of (a+b)/2
-          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
-        else %% see the structure of face_quad_coef in the comments in assembl_pyram
-          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
-        end
-      end
-
-    else 
-      error('invalid number of vertices. elements ' + num2str(el));    
     end
-    
-    local         = assemble_local{n_VERT}(P,face_indices,faces(face_indices,1),face_pts,normalFacesE,measFacesE);
+
+    local = assemble_local{n_VERT}(P,faces_of_E,faces(faces_of_E,1),face_pts,normalFacesE,measFacesE);
     K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),elements_by_faces(el,2:(n_Faces{n_VERT}+1))) += local; 
-    W         = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    W     = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
     K(num_faces + el,elements_by_faces(el,2:(n_Faces{n_VERT}+1))) = W;
     K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),num_faces + el) = W.';
-
-%%% Check if the matrix has all ones in the last rows and columns
 
     clear('Mdistances');
 
   end    %% end of main for
   close(h);
-
-
   res = K;
   a=toc;
   toc

@@ -4,9 +4,6 @@ function [outputs] = assmbl_tetr(vertices,face_indices,face_types,face_pts,norma
   %
   %% measFacesE in R(1x5)
   %
-  %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
-  %% those of elements_by_faces.txt
-  %
   %  TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. 
   %  pasarlo a la funcion.
   %
@@ -26,6 +23,8 @@ function [outputs] = assmbl_tetr(vertices,face_indices,face_types,face_pts,norma
   quad_nrmlztn    = measE/2;    
   we_basis          = zeros(3, dim_Vh, n_vol_pts);
 
+  % tetrahedral cubature points from GELLERT AND HARBORD 1991
+  % direct from the physical vertices      
   vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,5]),2);
   vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[2,4,5]),2);
   vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[2,3,5]),2);
