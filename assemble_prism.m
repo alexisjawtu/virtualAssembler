@@ -58,9 +58,7 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
     we_basis(:,:,l) = WE_basis(vol_pts(:,l),n_vertices);   
   end                                                                    
   
-SEGUIR ACA: **comparar con el programa de solo prismas con mult lagrange
-			**revisar si no se caga la indexacion con esto de que ahora hago todo en cada 
-			funcion elemental
+SEGUIR ACA: 
 			**ver si la construccion de caras se puede hacer dentro de las
 			funciones elementales
 			**ver todo assembleA.m y borrar todo lo que no se use y controlar cada linea

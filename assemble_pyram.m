@@ -31,16 +31,16 @@ function [outputs] = assmbl_pyram(vertices,face_indices,face_types,face_pts,norm
     %% sum of 2 tetrahedral cubatures from GELLERT AND HARBORD 1991
     %% tetrahedron: p_0 p_1 p_2 p_4
     % cubature points
-    vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,6]),2);
-    vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[2,4,6]),2);
-    vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[2,3,6]),2);
-    vol_pts(:,4) = const_a*vertices(:,5) + const_b*sum(vertices(:,[2,3,4]),2);
+    vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[2,3,5]),2);
+    vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[1,3,5]),2);
+    vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[1,2,5]),2);
+    vol_pts(:,4) = const_a*vertices(:,5) + const_b*sum(vertices(:,[1,2,3]),2);
     %% tetrahedron: vertices(:,1) vertices(:,3) p_3 vertices(:,5)
     % cubature points
-    vol_pts(:,5) = const_a*vertices(:,1) + const_b*sum(vertices(:,[4,5,6]),2);
-    vol_pts(:,6) = const_a*vertices(:,3) + const_b*sum(vertices(:,[2,5,6]),2);
-    vol_pts(:,7) = const_a*vertices(:,4) + const_b*sum(vertices(:,[2,4,6]),2);
-    vol_pts(:,8) = const_a*vertices(:,5) + const_b*sum(vertices(:,[2,4,5]),2);
+    vol_pts(:,5) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,5]),2);
+    vol_pts(:,6) = const_a*vertices(:,3) + const_b*sum(vertices(:,[1,4,5]),2);
+    vol_pts(:,7) = const_a*vertices(:,4) + const_b*sum(vertices(:,[1,3,5]),2);
+    vol_pts(:,8) = const_a*vertices(:,5) + const_b*sum(vertices(:,[1,3,4]),2);
     %Mcoords    = [vertices(:,1), vertices(:,2), vertices(:,3), vertices(:,4), vertices(:,5)];
     Mdistances = [vertices(:,2)-vertices(:,1), vertices(:,1)-vertices(:,3), vertices(:,4)-vertices(:,1), vertices(:,5)-vertices(:,1), vertices(:,2)-vertices(:,3), vertices(:,2)-vertices(:,4), vertices(:,5)-vertices(:,2), vertices(:,3)-vertices(:,4), vertices(:,3)-vertices(:,5), vertices(:,4)-vertices(:,5)];
     M_Element = Mdistances(:, [3, 1, 4]);
