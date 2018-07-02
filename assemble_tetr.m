@@ -20,9 +20,12 @@ function [outputs] = assmbl_tetr(vertices,face_indices,face_types,face_pts,norma
   M_Element    = [vertices(:,2)-vertices(:,1), vertices(:,3)-vertices(:,1), vertices(:,4)-vertices(:,1)];
   det_M_Element = det(M_Element);
   measE           = abs(det_M_Element)/3;
-  quad_nrmlztn    = measE/2;    
+  quad_nrmlztn    = measE;   ***es este o meas/2 como en pyr?    
   we_basis          = zeros(3, dim_Vh, n_vol_pts);
-
+  % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
+  const_a     = .58541019662496852;
+  const_b     = .1381966011250105;
+  
   % tetrahedral cubature points from GELLERT AND HARBORD 1991
   % direct from the physical vertices      
   vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,5]),2);

@@ -50,15 +50,10 @@
 %% @seealso{los otros assemble}
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
-function [res] = assembleA(num_faces)
-%% num_faces is the number of faces in the whole mesh
+function [res] = assembleA()
 
-  dict_save = {};
-  dict_save2 = {};
-
-  % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
-  const_a     = .58541019662496852;
-  const_b     = .1381966011250105;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55 dict_save = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  dict_save2 = {};
 
   vertices              = importdata ('vertices.txt');
   elements              = importdata ('elements_by_vertices.txt');
@@ -67,6 +62,7 @@ function [res] = assembleA(num_faces)
 
   vertices              = vertices.';
   num_el                = size (elements,1);
+  %% num_fc is the number of faces in the whole mesh
   num_fc                = size (faces,1);
 
   fprintf('Global normals and measures, %d faces\n', num_fc);
@@ -86,62 +82,55 @@ function [res] = assembleA(num_faces)
   save('globalNorms.txt','to_save','num_el','num_fc');
   clear('to_save');
 
-  dim_WE            = {};  
-  n_Faces           = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE            = {};  
+
+
+
   %meas_Refs         = {};
-  n_vol_pts         = {};
-  vol_wg            = {};
-  n_face_pts        = {};    %% Number of quad pts per element type per face
-  quad_aux_const    = {};    %% adjusting the volume quadrature
-  rescale_factor    = {};
-  K_stab_a          = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% n_vol_pts         = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% vol_wg            = {};
   
-  K_stab_a(4) = zeros(4);
-  K_stab_a(6) = zeros(5);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% quad_aux_const    = {};    %% adjusting the volume quadrature
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor    = {};
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a          = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(4) = zeros(4);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(6) = zeros(5);
 
-  rescale_factor(4) = 1;
-  rescale_factor(6) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(6) = 1;
 
-  n_vol_pts(4) = 4;
-  n_vol_pts(5) = 8;
-  n_vol_pts(6) = 9;
-
-  vol_wg(4) = .25*ones(n_vol_pts{4},1);
-  vol_wg(5) = .25*ones(n_vol_pts{5},1);
-  vol_wg(6) = [1; 4; 1; 1; 4; 1; 1; 4; 1];
-
-  dim_WE(4)   = 4;  
-  dim_WE(5)   = 4;  
-  dim_WE(6)   = 5;  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(4)   = 4;  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(5)   = 4;  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(6)   = 5;  
 
   %face_pts = {};
   %face_pts(4)  = {};  
   %face_pts(5)  = {};  
   %face_pts(6)  = {};
 
+  n_Faces     = {};
   n_Faces(4)  = 4;  
   n_Faces(5)  = 5;  
   n_Faces(6)  = 5;
-
-  n_face_pts(4) = [3,3,3,3];
-  n_face_pts(5) = [9,3,3,3,3];
-  n_face_pts(6) = [9,9,9,3,3];
 
   %meas_Refs(4) = 1/6;
   %meas_Refs(5) = 1/3;
   %meas_Refs(6) = 1/2;
 
-  quad_aux_const(4) = 1;
-  quad_aux_const(5) = .5;
-  quad_aux_const(6) = 1/36; 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(5) = .5;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(6) = 1/36; 
 
   %% quadrature points are requested only once:
-  cell_index    = {};
-  cell_index(4) = 1;
-  cell_index(5) = 2;
-  cell_index(6) = 3;
+
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index    = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(5) = 2;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(6) = 3;
   
-  K = sparse(num_faces + num_el,num_faces + num_el);
+  K = sparse(num_fc + num_el,num_fc + num_el);
 
   fprintf('Elements loop. %d\n',num_el);
   tic
@@ -165,10 +154,10 @@ function [res] = assembleA(num_faces)
     end
 
     local = assemble_local{n_VERT}(P,faces_of_E,faces(faces_of_E,1),face_pts,normalFacesE,measFacesE);
-    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),elements_by_faces(el,2:(n_Faces{n_VERT}+1))) += local; 
     W     = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-    K(num_faces + el,elements_by_faces(el,2:(n_Faces{n_VERT}+1))) = W;
-    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),num_faces + el) = W.';
+    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),elements_by_faces(el,2:(n_Faces{n_VERT}+1))) += local; 
+    K(num_fc + el,elements_by_faces(el,2:(n_Faces{n_VERT}+1))) = W;
+    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),num_fc + el) = W.';
 
     clear('Mdistances');
 

@@ -47,12 +47,18 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   n_vol_pts    = 9;
   dim_Vh       = 5;
   n_vertices   = 6;
+
+  ***********cual de los dos?
   vol_weights  = ones(n_vol_pts,1);
+  vol_wg(6) = [1; 4; 1; 1; 4; 1; 1; 4; 1];
+  ************
+
+
   we_basis     = zeros(3, dim_Vh, n_vol_pts);
   M_Element   = [vertices(:,2)-vertices(:,1),vertices(:,3)-vertices(:,1),vertices(:,4)-vertices(:,1)];
   det_M_Element = det(M_Element);
   measE        = abs(det_M_Element)/3;
-  quad_nrmlztn = measE/2;    
+  quad_nrmlztn = measE/36;    
 
   %% TODO: benchmark between this and (P1 + P2)/2
   vol_pts      = zeros(3,n_vol_pts);
@@ -71,7 +77,7 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   end                                                                    
   
 SEGUIR ACA: 
-			**ver todo assembleA.m y borrar todo lo que no se use y controlar cada linea
+			**ver todo assembleA.m y controlar cada linea
 			** ver tema face_pts en programa prismas
 
   int_E_w_w = zeros(dim_Vh);   %% int_E < w_k; w_r > dx

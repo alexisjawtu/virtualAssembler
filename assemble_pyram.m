@@ -21,7 +21,17 @@ function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normal
     %                               |4 |
     %                               |16|
 
+    % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
+    const_a     = .58541019662496852;
+    const_b     = .1381966011250105;
     vol_weights 		   = .25*ones(8,1); % the weights for the volume quadrature points
+
+**** reducir esto solo para pyrs
+n_face_pts        = {};    %% Number of quad pts per element type per face
+n_face_pts(4) = [3,3,3,3];
+n_face_pts(5) = [9,3,3,3,3];
+n_face_pts(6) = [9,9,9,3,3];
+
     %% vertices(:,6) is the top of the pyramid
            
     if ~are_coplanar (vertices(:,1:4))
