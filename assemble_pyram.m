@@ -35,7 +35,7 @@ function [outputs] = assmbl_pyram(vertices,face_indices,face_types,face_pts,norm
     vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[1,3,5]),2);
     vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[1,2,5]),2);
     vol_pts(:,4) = const_a*vertices(:,5) + const_b*sum(vertices(:,[1,2,3]),2);
-    %% tetrahedron: vertices(:,1) vertices(:,3) p_3 vertices(:,5)
+    %% tetrahedron: vertices(:,1) vertices(:,3) vertices(:,4) vertices(:,5)
     % cubature points
     vol_pts(:,5) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,5]),2);
     vol_pts(:,6) = const_a*vertices(:,3) + const_b*sum(vertices(:,[1,4,5]),2);
