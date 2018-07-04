@@ -48,16 +48,16 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   dim_Vh       = 5;
   n_vertices   = 6;
 
-  ***********cual de los dos?
-  vol_weights  = ones(n_vol_pts,1);
-  vol_wg(6) = [1; 4; 1; 1; 4; 1; 1; 4; 1];
-  ************
 
+**** OJO ACA: ver si el orden de vol_weights se condice con el
+**** de vals
+
+  vol_weights  = [1; 4; 1; 1; 4; 1; 1; 4; 1];
 
   we_basis     = zeros(3, dim_Vh, n_vol_pts);
   M_Element   = [vertices(:,2)-vertices(:,1),vertices(:,3)-vertices(:,1),vertices(:,4)-vertices(:,1)];
   det_M_Element = det(M_Element);
-  measE        = abs(det_M_Element)/3;
+  measE        = abs(det_M_Element)/2;
   quad_nrmlztn = measE/36;    
 
   %% TODO: benchmark between this and (P1 + P2)/2

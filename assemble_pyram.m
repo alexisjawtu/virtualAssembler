@@ -21,10 +21,12 @@ function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normal
     %                               |4 |
     %                               |16|
 
-    % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
+    % coefficients tetrahedral cubature on 4 points A. H. Stroud, Approximate Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
+    n_vol_pts = 8;
+    vol_pts = zeros(3,n_vol_pts); 
     const_a     = .58541019662496852;
     const_b     = .1381966011250105;
-    vol_weights 		   = .25*ones(8,1); % the weights for the volume quadrature points
+    vol_weights = .25*ones(8,1); % the weights for the volume quadrature points
 
 **** reducir esto solo para pyrs
 n_face_pts        = {};    %% Number of quad pts per element type per face
@@ -38,7 +40,7 @@ n_face_pts(6) = [9,9,9,3,3];
       fprintf('pyramid %d with vertices in different order', el);
       exit;
     end
-    %% sum of 2 tetrahedral cubatures from GELLERT AND HARBORD 1991
+    %% sum of 2 tetrahedral cubatures from A. H. Stroud, Approximate Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
     %% tetrahedron: p_0 p_1 p_2 p_4
     % cubature points
     vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[2,3,5]),2);
@@ -65,17 +67,14 @@ n_face_pts(6) = [9,9,9,3,3];
     end
     face_quad_coef(faces_of_E(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
 
-    det_M_Element = det(M_Element);
-
-    measE                       = abs(det_M_Element)/3;
-    quad_nrmlztn                = measE/2;    
+    quad_nrmlztn                = abs(det(M_Element))/24; %% <--- measE/8;    
     rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
     clear('Mdistances');
 
-    we_potentials  			= zeros(8, 4);
-    we_basis                = zeros(3, 4, 8);
+    we_potentials  			= zeros(n_vol_pts, 4);
+    we_basis                = zeros(3, 4, n_vol_pts);
 
-    for l = 1:8
+    for l = 1:n_vol_pts
       we_potentials(l,:) = WE_potentials(vol_pts(:,l),5);
       we_basis(:,:,l)    = WE_basis(vol_pts(:,l),5);   
     end                                                                    
@@ -85,8 +84,7 @@ n_face_pts(6) = [9,9,9,3,3];
     for r = 1:4
       for k = 1:4
         %% ( (wr*wk)(p1), ..., (wr*wk)(p8) )
-        vals            = reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,8);
-        int_E_w_w(r,k)  = vals*vol_weights;
+        int_E_w_w(r,k) = sum(reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,n_vol_pts));
       end
     end
     

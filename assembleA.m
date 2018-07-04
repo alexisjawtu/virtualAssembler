@@ -116,7 +116,6 @@ function [res] = assembleA()
   n_Faces(6)  = 5;
 
   %meas_Refs(4) = 1/6;
-  %meas_Refs(5) = 1/3;
   %meas_Refs(6) = 1/2;
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(4) = 1;
