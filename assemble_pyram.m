@@ -20,8 +20,12 @@ function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normal
     %                               |4 |
     %                               |4 |
     %                               |16|
-
     % coefficients tetrahedral cubature on 4 points A. H. Stroud, Approximate Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
+    % We are assuming that the pyramid is divided into two tetrahera of the same measure.
+    % When this stops being the case, we have to write meas(T1)/4 * sum + meas(T2)/4 * sum.
+    n_vertices      = 5;
+    nFaces = 5;
+    dim_Wh          = 4;
     n_vol_pts = 8;
     vol_pts = zeros(3,n_vol_pts); 
     const_a     = .58541019662496852;
@@ -79,10 +83,10 @@ n_face_pts(6) = [9,9,9,3,3];
       we_basis(:,:,l)    = WE_basis(vol_pts(:,l),5);   
     end                                                                    
     
-    int_E_w_w = zeros(4);   %% int_E < w_k; w_r > dx
+    int_E_w_w = zeros(dim_Wh);   %% int_E < w_k; w_r > dx
 
-    for r = 1:4
-      for k = 1:4
+    for r = 1:dim_Wh
+      for k = 1:dim_Wh
         %% ( (wr*wk)(p1), ..., (wr*wk)(p8) )
         int_E_w_w(r,k) = sum(reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,n_vol_pts));
       end
@@ -90,23 +94,28 @@ n_face_pts(6) = [9,9,9,3,3];
     
     int_E_w_w *= quad_nrmlztn; 
 
-    %% READ: -quad_nrmlztn*we_potentials.'*vol_weights/measE  
-    %% -1/mu(E) * int_E q_j
+
+
+
+******************************
+
+    %% READ: -const * we_potentials.'*vol_weights/measE  
+    %%                    -1/meas(E) * int_E q_j, because div(vk) == 1/meas(E), for every k = 1 .. 5
     b1 = repmat(-we_potentials.'*vol_weights/2,1,5);
     % Boundary term. Formerly: b2_{i,j} = Int_{fi} qj dS. page 62 in the middle.
-    b2 = zeros(4,5); 
-    we_potentials_faces = zeros (4,9,5);
-    for f = 1:5
+    b2 = zeros(dim_Wh,5); 
+    we_potentials_faces = zeros (dim_Wh,9,nFaces);
+    for f = 1:nFaces
       for pt = 1:size(face_pts,2) 
-        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{faces_of_E(f)}(:,pt),5).';
+        we_potentials_faces(:,pt,f) = WE_potentials(face_pts{faces_of_E(f)}(:,pt),n_vertices).';
       end
     end
     %% now the evaluated arrays have 1 to 5 face numbers.
-    for f = 1:5
+    for f = 1:nFaces
       b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(faces_of_E(f)); %% (4x1)
     end
 
-    b2    = b2./repmat(measFacesE,4,1);
+    b2    = b2./repmat(measFacesE,dim_Wh,1);
     b     = b1 + b2;
     PROJ  = int_E_w_w\b;
 
@@ -115,9 +124,9 @@ n_face_pts(6) = [9,9,9,3,3];
     %% for the stabilizating bilinear form
 
     % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
-    D         = zeros(5,4);
+    D         = zeros(nFaces,dim_Wh);
         
-    for face = 1:5
+    for face = 1:nFaces
       for pts = 1:n_face_pts{n_VERT}(face)
         w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
         D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
@@ -125,7 +134,7 @@ n_face_pts(6) = [9,9,9,3,3];
     end
 
     Proj_in_base_W  = D*PROJ;
-    K_stab          = rescale_factor * (eye(5) - Proj_in_base_W).'*(eye(5) - Proj_in_base_W);
+    K_stab          = rescale_factor * (eye(nFaces) - Proj_in_base_W).'*(eye(nFaces) - Proj_in_base_W);
 	outputs         = K_comput + K_stab;
 
 endfunction

@@ -47,7 +47,7 @@
 %% tetrahedron: 1: {z==0}; 2: {y==0}; 3: {x==0}; 4: {x+y+z==1};
 
 %% 
-%% @seealso{los otros assemble}
+%% @seealso{assemble_[type]}
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
 function [res] = assembleA()
