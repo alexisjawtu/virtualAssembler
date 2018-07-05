@@ -72,7 +72,7 @@ n_face_pts(6) = [9,9,9,3,3];
     face_quad_coef(faces_of_E(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
 
     quad_nrmlztn                = abs(det(M_Element))/24; %% <--- measE/8;    
-    rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/diameter
+    rescale_factor              = 1/max(norm(Mdistances,2,'columns')); %% 1/h_E
     clear('Mdistances');
 
     we_potentials  			= zeros(n_vol_pts, 4);
@@ -94,15 +94,13 @@ n_face_pts(6) = [9,9,9,3,3];
     
     int_E_w_w *= quad_nrmlztn; 
 
-
-
-
 ******************************
-
+	%%%%%%%%%%%%%%%%% for the COMPUTABILITY bilinear form %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %% READ: -const * we_potentials.'*vol_weights/measE  
     %%                    -1/meas(E) * int_E q_j, because div(vk) == 1/meas(E), for every k = 1 .. 5
     b1 = repmat(-we_potentials.'*vol_weights/2,1,5);
     % Boundary term. Formerly: b2_{i,j} = Int_{fi} qj dS. page 62 in the middle.
+    %% 1/meas(fk) * ( iint_{fk} potential_i dS ) == iint_{partial E} ( (vk.n)*potential_i ) dS
     b2 = zeros(dim_Wh,5); 
     we_potentials_faces = zeros (dim_Wh,9,nFaces);
     for f = 1:nFaces
@@ -115,16 +113,15 @@ n_face_pts(6) = [9,9,9,3,3];
       b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(faces_of_E(f)); %% (4x1)
     end
 
-    %% 1/meas(fk) * ( iint_{fk} potential_i dS ) == iint_{partial E} ( (vk.n)*potential_i ) dS
     b2    = b2./repmat(measFacesE,dim_Wh,1);
     b     = b1 + b2;
     PROJ  = int_E_w_w\b;
 
     K_comput  = PROJ.' * int_E_w_w * PROJ;
 
-    %% for the stabilizating bilinear form
+	%%%%%%%%%%%%%%%%% for the STABILIZING bilinear form %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
+    % D_{j,i} = dof_j ( w_i ).
     D         = zeros(nFaces,dim_Wh);
         
     for face = 1:nFaces
@@ -133,8 +130,8 @@ n_face_pts(6) = [9,9,9,3,3];
         D(face,:)  += face_quad_coef(pts,face) * normalFacesE(:,face).' * w_on_faces;
       end
     end
-
     Proj_in_base_W  = D*PROJ;
+
     K_stab          = rescale_factor * (eye(nFaces) - Proj_in_base_W).'*(eye(nFaces) - Proj_in_base_W);
 	outputs         = K_comput + K_stab;
 
