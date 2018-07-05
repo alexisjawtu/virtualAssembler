@@ -115,6 +115,7 @@ n_face_pts(6) = [9,9,9,3,3];
       b2(:,f) = we_potentials_faces(:,:,f) * face_quad_coef(faces_of_E(f)); %% (4x1)
     end
 
+    %% 1/meas(fk) * ( iint_{fk} potential_i dS ) == iint_{partial E} ( (vk.n)*potential_i ) dS
     b2    = b2./repmat(measFacesE,dim_Wh,1);
     b     = b1 + b2;
     PROJ  = int_E_w_w\b;
