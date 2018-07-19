@@ -20,9 +20,22 @@ function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normal
     %                               |4 |
     %                               |4 |
     %                               |16|
-    % coefficients tetrahedral cubature on 4 points A. H. Stroud, Approximate Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
+    %
+    % coefficients tetrahedral cubature on 4 points A. H. Stroud, Approximate 
+    % Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
     % We are assuming that the pyramid is divided into two tetrahera of the same measure.
     % When this stops being the case, we have to write meas(T1)/4 * sum + meas(T2)/4 * sum.
+
+    %%% old 
+    %  face_quad_coef              = repmat([1;1;1;1;4;4;4;4;16],1,5);
+    %  quadrilat                   = find(face_types == 4);
+    %  triangles                   = find(face_types == 3);    
+    %% TODO: instead of measFacesE(triangles) do: measFacesE(map(triangles)) 
+    %% so that we don't care of "preserving orders"
+    %  face_quad_coef(:,quadrilat) = face_quad_coef(:,quadrilat)*diag(measFacesE(quadrilat)/36);
+    %  face_quad_coef(:,triangles) = [repmat(measFacesE(triangles)/3,3,1);zeros(6,2)];
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     n_vertices      = 5;
     nFaces = 5;
     dim_Wh          = 4;

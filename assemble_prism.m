@@ -2,34 +2,16 @@
 function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(prism) == Wh(prism)
   %
-  %% measFacesE in R(1x5)
-  %
-  %
   % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
   %
-  %%   face_quad_coef =    |meas(fi)/3| in case of triangle
-  %                        |meas(fi)/3|
-  %                        |meas(fi)/3|
+  % Explanation of vol_pts: if E were the "reference prism", we would have
   %
-  %%   face_quad_coef =    |1 |*(1/36) in case of rectangle
-  %                        |1 |
-  %                        |1 |
-  %                        |1 |
-  %                        |4 |
-  %                        |4 |
-  %                        |4 |
-  %                        |4 |
-  %                        |16|	
-
-  %  face_quad_coef              = repmat([1;1;1;1;4;4;4;4;16],1,5);
-  %  quadrilat                   = find(face_types == 4);
-  %  triangles                   = find(face_types == 3);    
-  %% TODO: instead of measFacesE(triangles) do: measFacesE(map(triangles)) 
-  %% so that we don't care of "preserving orders"
-  %  face_quad_coef(:,quadrilat) = face_quad_coef(:,quadrilat)*diag(measFacesE(quadrilat)/36);
-  %  face_quad_coef(:,triangles) = [repmat(measFacesE(triangles)/3,3,1);zeros(6,2)];
+  % vol_pts = [.5  0 0; .5 .5 0; 0 .5 0; .5 0 .5; .5 .5 .5; 0 .5 .5; .5 0 1; .5 .5 1; 0 .5 1];
   
-  %% this was in assembleA.m. It will be useful in future versions of the program.
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+  %%  this was in assembleA.m. It will be useful in future versions of the program.
+
+  %
   %      face_pts = {};
   %
   %      for f = 2:(n_Faces{n_VERT}+1)                   
@@ -42,15 +24,12 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   %          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
   %        end
   %      end
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   n_vertices   = 6;
   n_vol_pts    = 9;
   dim_Vh       = 5;
   n_vertices   = 6;
-
-
-**** OJO ACA: ver si el orden de vol_weights se condice con el
-**** de vals
 
   vol_weights  = [1; 4; 1; 1; 4; 1; 1; 4; 1];
 
@@ -76,10 +55,6 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
     we_basis(:,:,l) = WE_basis(vol_pts(:,l),n_vertices);   
   end                                                                    
   
-SEGUIR ACA: 
-			**ver todo assembleA.m y controlar cada linea
-			** ver tema face_pts en programa prismas
-
   int_E_w_w = zeros(dim_Vh);   %% int_E < w_k; w_r > dx
   for r = 1:dim_Vh
     for k = 1:dim_Vh
