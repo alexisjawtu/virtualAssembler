@@ -47,21 +47,13 @@
 %% tetrahedron: 1: {z==0}; 2: {y==0}; 3: {x==0}; 4: {x+y+z==1};
 
 %% 
-%% @seealso{los otros assemble}
+%% @seealso{assemble_[type]}
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
-function [res] = assembleA(num_faces)
-%% num_faces is the number of faces in the whole mesh
+function [res] = assembleA()
 
-  dict_save = {};
-  dict_save2 = {};
-
-
-  quad_pts_prism    = [.5 0 0; .5 .5 0; 0 .5 0; .5 0 .5; .5 .5 .5; 0 .5 .5; .5 0 1; .5 .5 1; 0 .5 1].';
-
-  % coefficients tetrahedral cubature on 4 points GELLERT and HARBORD 91
-  const_a     = .58541019662496852;
-  const_b     = .1381966011250105;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55 dict_save = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  dict_save2 = {};
 
   vertices              = importdata ('vertices.txt');
   elements              = importdata ('elements_by_vertices.txt');
@@ -70,6 +62,7 @@ function [res] = assembleA(num_faces)
 
   vertices              = vertices.';
   num_el                = size (elements,1);
+  %% num_fc is the number of faces in the whole mesh
   num_fc                = size (faces,1);
 
   fprintf('Global normals and measures, %d faces\n', num_fc);
@@ -89,188 +82,86 @@ function [res] = assembleA(num_faces)
   save('globalNorms.txt','to_save','num_el','num_fc');
   clear('to_save');
 
-  dim_WE            = {};  
-  n_Faces           = {};
-  meas_Refs         = {};
-  n_vol_pts         = {};
-  vol_wg            = {};
-  n_face_pts        = {};    %% Number of quad pts per element type per face
-  quad_aux_const    = {};    %% adjusting the volume quadrature
-  rescale_factor    = {};
-  K_stab_a          = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE            = {};  
+
+
+
+  %meas_Refs         = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% n_vol_pts         = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% vol_wg            = {};
   
-  K_stab_a(4) = zeros(4);
-  K_stab_a(6) = zeros(5);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% quad_aux_const    = {};    %% adjusting the volume quadrature
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor    = {};
+  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a          = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(4) = zeros(4);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(6) = zeros(5);
 
-  rescale_factor(4) = 1;
-  rescale_factor(6) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(6) = 1;
 
-  n_vol_pts(4) = 4;
-  n_vol_pts(5) = 8;
-  n_vol_pts(6) = 9;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(4)   = 4;  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(5)   = 4;  
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(6)   = 5;  
 
-  vol_wg(4) = .25*ones(n_vol_pts{4},1);
-  vol_wg(5) = .25*ones(n_vol_pts{5},1);
-  vol_wg(6) = [1; 4; 1; 1;  4; 1; 1; 4; 1];
+  %face_pts = {};
+  %face_pts(4)  = {};  
+  %face_pts(5)  = {};  
+  %face_pts(6)  = {};
 
-  dim_WE(4)   = 4;  
-  dim_WE(5)   = 4;  
-  dim_WE(6)   = 5;  
-
+  n_Faces     = {};
   n_Faces(4)  = 4;  
   n_Faces(5)  = 5;  
   n_Faces(6)  = 5;
 
-  n_face_pts(4) = [3,3,3,3];
-  n_face_pts(5) = [9,3,3,3,3];
-  n_face_pts(6) = [9,9,9,3,3];
+  %meas_Refs(4) = 1/6;
+  %meas_Refs(6) = 1/2;
 
-  meas_Refs(4) = 1/6;
-  meas_Refs(5) = 1/3;
-  meas_Refs(6) = 1/2;
-
-  quad_aux_const(4) = 1;
-  quad_aux_const(5) = .5;
-  quad_aux_const(6) = 1/36; 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(5) = .5;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(6) = 1/36; 
 
   %% quadrature points are requested only once:
-  cell_index    = {};
-  cell_index(4) = 1;
-  cell_index(5) = 2;
-  cell_index(6) = 3;
-  
-  points_of_faces = face_quad_points();  %% this is a cell
 
-  K = sparse(num_faces + num_el,num_faces + num_el);
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index    = {};
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(4) = 1;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(5) = 2;
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(6) = 3;
+  
+  K = sparse(num_fc + num_el,num_fc + num_el);
 
   fprintf('Elements loop. %d\n',num_el);
   tic
+
   for el = 1:num_el
-    h = waitbar(el/num_el);
-    n_VERT    = elements(el,1);         %% to know which type of element
-    vol_pts   = zeros(3,n_vol_pts{n_VERT});
+    h            = waitbar(el/num_el);
+    n_VERT       = elements(el,1);      %% to know which type of element
+    P            = vertices(:,elements(el,2:(n_VERT+1)));
+    normalFacesE = global_normals(:,elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
+    measFacesE   = global_meas_faces(elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
+    faces_of_E   = elements_by_faces(el,2:(n_Faces{n_VERT}+1));
     
-    P = vertices(:,elements(el,2:(n_VERT+1)));
-
-    if n_VERT == 5 
-      %% P(:,6) is the top of the pyramid
-           
-      if ~are_coplanar (P(:,1:4))
-        fprintf('pyramid %d with vertices in different order', el);
-        exit;
+    face_pts = {};
+    for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
+      face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
+      if faces(elements_by_faces(el,f),1) == 3
+        face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
+      else %% see the structure of face_quad_coef in the comments in assembl_pyram
+        face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
       end
-      %% sum of 2 tetrahedral cubatures from GELLERT AND HARBORD 1991
-      %% tetrahedron: p_0 p_1 p_2 p_4
-      % cubature points
-      vol_pts(:,1) = const_a*P(:,1) + const_b*sum(vertices(:,elements(el,[3,4,6])),2);
-      vol_pts(:,2) = const_a*P(:,2) + const_b*sum(vertices(:,elements(el,[2,4,6])),2);
-      vol_pts(:,3) = const_a*P(:,3) + const_b*sum(vertices(:,elements(el,[2,3,6])),2);
-      vol_pts(:,4) = const_a*P(:,5) + const_b*sum(vertices(:,elements(el,[2,3,4])),2);
-      %% tetrahedron: P(:,1) P(:,3) p_3 P(:,5)
-      % cubature points
-      vol_pts(:,5) = const_a*P(:,1) + const_b*sum(vertices(:,elements(el,[4,5,6])),2);
-      vol_pts(:,6) = const_a*P(:,3) + const_b*sum(vertices(:,elements(el,[2,5,6])),2);
-      vol_pts(:,7) = const_a*P(:,4) + const_b*sum(vertices(:,elements(el,[2,4,6])),2);
-      vol_pts(:,8) = const_a*P(:,5) + const_b*sum(vertices(:,elements(el,[2,4,5])),2);
-
-      %Mcoords    = [P(:,1), P(:,2), P(:,3), P(:,4), P(:,5)];
-
-      Mdistances = [P(:,2)-P(:,1), P(:,1)-P(:,3), P(:,4)-P(:,1), P(:,5)-P(:,1), P(:,2)-P(:,3), P(:,2)-P(:,4), P(:,5)-P(:,2), P(:,3)-P(:,4), P(:,3)-P(:,5), P(:,4)-P(:,5)];
-
-      M_Element = Mdistances(:, [3, 1, 4]);
-
-      normalFacesE     = global_normals(:,elements_by_faces(el,2:end));
-      measFacesE       = global_meas_faces(elements_by_faces(el,2:end));
-
-      face_pts = {};
-
-      for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
-        face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
-        if faces(elements_by_faces(el,f),1) == 3
-          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
-        else %% see the structure of face_quad_coef in the comments in assembl_pyram
-          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
-        end
-      end
-
-    elseif n_VERT == 4
-
-      % tetrahedral cubature points from GELLERT AND HARBORD 1991
-      % direct from the physical vertices
-      
-      vol_pts(:,1) = const_a*P(:,1) + const_b*sum(vertices(:,elements(el,[3,4,5])),2);
-      vol_pts(:,2) = const_a*P(:,2) + const_b*sum(vertices(:,elements(el,[2,4,5])),2);
-      vol_pts(:,3) = const_a*P(:,3) + const_b*sum(vertices(:,elements(el,[2,3,5])),2);
-      vol_pts(:,4) = const_a*P(:,4) + const_b*sum(vertices(:,elements(el,[2,3,4])),2);
-      
-      %Mcoords      = [P(:,1),P(:,2),P(:,3),P(:,4)];
-
-      Mdistances   = [P(:,2)-P(:,1), P(:,3)-P(:,1), P(:,4)-P(:,1), P(:,2)-P(:,3), P(:,2)-P(:,4), P(:,3)-P(:,4)];
-
-      M_Element    = Mdistances(:,1:3);
-      
-      %M_Element    = [P(:,2)-P(:,1), P(:,3)-P(:,1), P(:,4)-P(:,1)];
-
-      normalFacesE     = global_normals(:,elements_by_faces(el,2:5));
-      measFacesE       = global_meas_faces(elements_by_faces(el,2:5));      
-      
-      
-
-    elseif n_VERT == 6
-
-      %Mcoords     = [P(:,1),P(:,2),P(:,3),P(:,4),P(:,5),P(:,6)];
-
-      Mdistances  = [P(:,2)-P(:,1),P(:,3)-P(:,1),P(:,4)-P(:,1), P(:,1)-P(:,5), P(:,1)-P(:,6), P(:,2)-P(:,3), P(:,2)-P(:,4), P(:,2)-P(:,5), P(:,2)-P(:,6), P(:,3)-P(:,4), P(:,3)-P(:,5), P(:,3)-P(:,6), P(:,4)-P(:,5), P(:,4)-P(:,6), P(:,5)-P(:,6)];
-
-      M_Element   = Mdistances(:,1:3);
-
-      normalFacesE     = global_normals(:,elements_by_faces(el,2:n_Faces{n_VERT}+1));
-      measFacesE       = global_meas_faces(elements_by_faces(el,2:n_Faces{n_VERT}+1));
-      
-      %% TODO: benchmark between this and (P1 + P2)/2
-      vol_pts      = zeros(3,9);
-      vol_pts(:,1) = mean([P(:,1),P(:,3)],2);
-      vol_pts(:,2) = mean([P(:,2),P(:,3)],2);
-      vol_pts(:,3) = mean([P(:,2),P(:,1)],2);
-      vol_pts(:,7) = mean([P(:,4),P(:,6)],2);
-      vol_pts(:,8) = mean([P(:,5),P(:,6)],2);
-      vol_pts(:,9) = mean([P(:,5),P(:,4)],2);
-      vol_pts(:,4) = mean([vol_pts(:,7),vol_pts(:,1)],2);
-      vol_pts(:,5) = mean([vol_pts(:,8),vol_pts(:,2)],2);
-      vol_pts(:,6) = mean([vol_pts(:,9),vol_pts(:,3)],2);
-
-      face_pts = {};
-
-      for f = 2:(n_Faces{n_VERT}+1)                   
-      % list of vertices of the face (3x3 or 3x4)       2:(1 + type--of--face)   
-        face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
-        if faces(elements_by_faces(el,f),1) == 3
-          % TODO: use the mean instead of (a+b)/2
-          face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
-        else %% see the structure of face_quad_coef in the comments in assembl_pyram
-          face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
-        end
-      end
-
-    else 
-      error('invalid number of vertices. elements ' + num2str(el));    
     end
-    face_indices  = elements_by_faces(el,2:n_Faces{n_VERT}+1);
-    
-    local         = assemble_local{n_VERT}(face_indices,faces(face_indices,1),Mdistances,det(M_Element),vol_pts,face_pts,P(:,1),normalFacesE,measFacesE);
-    
-    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),elements_by_faces(el,2:n_Faces{n_VERT}+1)) += local; 
-    
-    W             = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-    K(num_faces + el,elements_by_faces(el,2:n_Faces{n_VERT}+1)) = W;
-    K(elements_by_faces(el,2:n_Faces{n_VERT}+1),num_faces + el) = W.';
+
+    local = assemble_local{n_VERT}(P,faces_of_E,faces(faces_of_E,1),face_pts,normalFacesE,measFacesE);
+    W     = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),elements_by_faces(el,2:(n_Faces{n_VERT}+1))) += local; 
+    K(num_fc + el,elements_by_faces(el,2:(n_Faces{n_VERT}+1))) = W;
+    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),num_fc + el) = W.';
 
     clear('Mdistances');
 
   end    %% end of main for
   close(h);
-
-
   res = K;
   a=toc;
   toc
