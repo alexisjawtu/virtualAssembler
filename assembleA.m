@@ -52,9 +52,6 @@
 %% Author: Alexis Jawtuschenko.
 function [res] = assembleA()
 
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%55 dict_save = {};
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  dict_save2 = {};
-
   vertices              = importdata ('vertices.txt');
   elements              = importdata ('elements_by_vertices.txt');
   elements_by_faces     = importdata ('elements_by_faces.txt');
@@ -62,73 +59,30 @@ function [res] = assembleA()
 
   vertices              = vertices.';
   num_el                = size (elements,1);
-  %% num_fc is the number of faces in the whole mesh
   num_fc                = size (faces,1);
 
   fprintf('Global normals and measures, %d faces\n', num_fc);
 
-  assemble_local = {};
+  assemble_local    = {};
   assemble_local(4) = @assemble_tetr;
   assemble_local(5) = @assemble_pyram;
   assemble_local(6) = @assemble_prism;
   
-  global_normals       = cross(vertices(:,faces(:,3))-vertices(:,faces(:,2)),vertices(:,faces(:,4))-vertices(:,faces(:,2)));
-  global_norms         = norm(global_normals,2,'columns');  
-  global_normals       = global_normals./global_norms;
-  global_meas_faces    = global_norms./(1 + (faces(:,1) == 3));
-  to_save              = global_norms.';
+  global_normals    = cross(vertices(:,faces(:,3))-vertices(:,faces(:,2)),vertices(:,faces(:,4))-vertices(:,faces(:,2)));
+  global_norms      = norm(global_normals,2,'columns');  
+  global_normals    = global_normals./global_norms;
+  global_meas_faces = global_norms./(1 + (faces(:,1) == 3));
+  to_save           = global_norms.';
   
   fprintf('Global normals and measures finished.');
   save('globalNorms.txt','to_save','num_el','num_fc');
   clear('to_save');
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE            = {};  
-
-
-
-  %meas_Refs         = {};
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% n_vol_pts         = {};
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% vol_wg            = {};
-  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% quad_aux_const    = {};    %% adjusting the volume quadrature
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor    = {};
-  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a          = {};
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(4) = zeros(4);
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  K_stab_a(6) = zeros(5);
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(4) = 1;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rescale_factor(6) = 1;
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(4)   = 4;  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(5)   = 4;  
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%dim_WE(6)   = 5;  
-
-  %face_pts = {};
-  %face_pts(4)  = {};  
-  %face_pts(5)  = {};  
-  %face_pts(6)  = {};
 
   n_Faces     = {};
   n_Faces(4)  = 4;  
   n_Faces(5)  = 5;  
   n_Faces(6)  = 5;
 
-  %meas_Refs(4) = 1/6;
-  %meas_Refs(6) = 1/2;
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(4) = 1;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(5) = .5;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  quad_aux_const(6) = 1/36; 
-
-  %% quadrature points are requested only once:
-
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index    = {};
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(4) = 1;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(5) = 2;
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5 cell_index(6) = 3;
-  
   K = sparse(num_fc + num_el,num_fc + num_el);
 
   fprintf('Elements loop. %d\n',num_el);
@@ -137,13 +91,17 @@ function [res] = assembleA()
   for el = 1:num_el
     h            = waitbar(el/num_el);
     n_VERT       = elements(el,1);      %% to know which type of element
+    nFacesE      = n_Faces{n_VERT};
     P            = vertices(:,elements(el,2:(n_VERT+1)));
-    normalFacesE = global_normals(:,elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
-    measFacesE   = global_meas_faces(elements_by_faces(el,2:(n_Faces{n_VERT}+1)));
-    faces_of_E   = elements_by_faces(el,2:(n_Faces{n_VERT}+1));
+    faces_of_E   = elements_by_faces(el,2:(nFacesE+1));
+    normalFacesE = global_normals(:,faces_of_E);
+    measFacesE   = global_meas_faces(faces_of_E);
     
+
+%%%%% SEGUIR LEYENDO ACA:
+
     face_pts = {};
-    for f = 2:(n_Faces{n_VERT}+1)                   % 2:(1 + type--of--face)   
+    for f = 2:(nFacesE+1)                   % 2:(1 + type--of--face)   
       face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
       if faces(elements_by_faces(el,f),1) == 3
         face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
@@ -153,10 +111,10 @@ function [res] = assembleA()
     end
 
     local = assemble_local{n_VERT}(P,faces_of_E,faces(faces_of_E,1),face_pts,normalFacesE,measFacesE);
-    W     = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),elements_by_faces(el,2:(n_Faces{n_VERT}+1))) += local; 
-    K(num_fc + el,elements_by_faces(el,2:(n_Faces{n_VERT}+1))) = W;
-    K(elements_by_faces(el,2:(n_Faces{n_VERT}+1)),num_fc + el) = W.';
+    W     = ones(1,nFacesE);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    K(faces_of_E,faces_of_E) += local; 
+    K(num_fc + el,faces_of_E) = W;
+    K(faces_of_E,num_fc + el) = W.';
 
     clear('Mdistances');
 
@@ -194,7 +152,7 @@ endfunction
 %    rescale_factor(5) = 1/diameter;
 %    
 %    %% obs: matrix product needs to be reshaped after:
-%    face_pts    = reshape(M_Element * points_of_faces{cell_index{n_VERT}} + P(:,1), 3, max(n_face_pts{n_VERT}), n_Faces{n_VERT});
+%    face_pts    = reshape(M_Element * points_of_faces{cell_index{n_VERT}} + P(:,1), 3, max(n_face_pts{n_VERT}), nFacesE);
 %    w           = zeros(3, dim_WE{n_VERT}, size(vol_pts,2)); %% polynomials of W(E)
 %    potentials  = zeros(size(vol_pts,2), dim_WE{n_VERT});
 %    for l = 1:size(vol_pts,2)
@@ -220,11 +178,11 @@ endfunction
 %    B1        = -Hsharp * inverse_H * W;  %% page 63, second half of the page.
 %
 %    % Boundary term. B2_{i,j} = Int_{fi} qj dS. page 62 in the middle.
-%    B2        = zeros(dim_WE{n_VERT},n_Faces{n_VERT}); 
+%    B2        = zeros(dim_WE{n_VERT},nFacesE); 
 %    % D_{j,i} = dof_j ( w_i ). See page 64 in the middle.
-%    D         = zeros(n_Faces{n_VERT},dim_WE{n_VERT});
+%    D         = zeros(nFacesE,dim_WE{n_VERT});
 %    %% loop F
-%    for face = 1:n_Faces{n_VERT}
+%    for face = 1:nFacesE
 %      for pts = 1:n_face_pts{n_VERT}(face)
 %        p           = WE_potentials(diameter, centroid, face_pts(:, pts, face), n_VERT);
 %        w_on_faces  = WE_basis (diameter, centroid, face_pts(:, pts, face), n_VERT);
