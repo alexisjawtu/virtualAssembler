@@ -261,11 +261,9 @@ function [res] = assembleA(num_faces)
     
     K(elements_by_faces(el,2:n_Faces{n_VERT}+1),elements_by_faces(el,2:n_Faces{n_VERT}+1)) += local; 
     
-    W         = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    W             = ones(1,n_Faces{n_VERT});  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
     K(num_faces + el,elements_by_faces(el,2:n_Faces{n_VERT}+1)) = W;
     K(elements_by_faces(el,2:n_Faces{n_VERT}+1),num_faces + el) = W.';
-
-%%% Check if the matrix has all ones in the last rows and columns
 
     clear('Mdistances');
 
