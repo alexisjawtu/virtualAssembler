@@ -1,8 +1,3 @@
-
-
-
-
-
 %    deter         = abs(det(M_Element));
 %    % TODO: with formula base x height / 3 ??;
 %    measE         = meas_Refs{n_VERT} * deter;
