@@ -96,22 +96,20 @@ function [res] = assembleA()
     faces_of_E   = elements_by_faces(el,2:(nFacesE+1));
     normalFacesE = global_normals(:,faces_of_E);
     measFacesE   = global_meas_faces(faces_of_E);
+    face_types   = faces(faces_of_E,1)
     
-
-%%%%% SEGUIR LEYENDO ACA:
-
     face_pts = {};
     for f = 2:(nFacesE+1)                   % 2:(1 + type--of--face)   
       face = vertices(:,faces(elements_by_faces(el,f),2:1+faces(elements_by_faces(el,f),1)));
       if faces(elements_by_faces(el,f),1) == 3
         face_pts(elements_by_faces(el,f)) = (face + shift(face,1,2))/2; 
       else %% see the structure of face_quad_coef in the comments in assembl_pyram
+        %% after testing
         face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
       end
     end
-
-    local = assemble_local{n_VERT}(P,faces_of_E,faces(faces_of_E,1),face_pts,normalFacesE,measFacesE);
-    W     = ones(1,nFacesE);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
+    local                     = assemble_local{n_VERT}(P,faces_of_E,face_types,face_pts,normalFacesE,measFacesE);
+    W                         = ones(1,nFacesE);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
     K(faces_of_E,faces_of_E) += local; 
     K(num_fc + el,faces_of_E) = W;
     K(faces_of_E,num_fc + el) = W.';
