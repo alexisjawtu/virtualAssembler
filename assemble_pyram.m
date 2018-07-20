@@ -1,6 +1,6 @@
-%% assmbl_pyram: function description
+%% assmble_pyram: function description
 %% normalFacesE: the last is the rectangle
-function [outputs] = assmbl_pyram(vertices,faces_of_E,face_types,face_pts,normalFacesE,measFacesE)
+function [outputs] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,normalFacesE,measFacesE)
     %
     %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
     %% those of elements_by_faces.txt

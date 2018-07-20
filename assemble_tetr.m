@@ -1,5 +1,5 @@
-%% assmbl_tetr: function description
-function [outputs] = assmbl_tetr(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+%% assemble_tetr: function description
+function [outputs] = assemble_tetr(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(tetra) == Wh(tetra)
   %
   %% measFacesE in R(1x5)

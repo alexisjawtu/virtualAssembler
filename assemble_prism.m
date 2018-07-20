@@ -1,5 +1,5 @@
-%% assmbl_prism: function description
-function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+%% assmble_prism: function description
+function [outputs] = assmble_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(prism) == Wh(prism)
   %
   % TODO: make a benchmark for the initialization of pts_of_faces each time
