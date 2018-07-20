@@ -96,7 +96,7 @@ function [res] = assembleA()
     faces_of_E   = elements_by_faces(el,2:(nFacesE+1));
     normalFacesE = global_normals(:,faces_of_E);
     measFacesE   = global_meas_faces(faces_of_E);
-    face_types   = faces(faces_of_E,1)
+    face_types   = faces(faces_of_E,1);
     
     face_pts = {};
     for f = 2:(nFacesE+1)                   % 2:(1 + type--of--face)   
