@@ -24,10 +24,10 @@ function [outputs] = assemble_tetr(vertices,face_indices,face_types,face_pts,nor
   
   % tetrahedral cubature points from Stroud 1971 Chap 8.8
   % direct from the physical vertices      
-  vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[3,4,5]),2);
-  vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[2,4,5]),2);
-  vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[2,3,5]),2);
-  vol_pts(:,4) = const_a*vertices(:,4) + const_b*sum(vertices(:,[2,3,4]),2);
+  vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[2,3,4]),2);
+  vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[1,3,4]),2);
+  vol_pts(:,3) = const_a*vertices(:,3) + const_b*sum(vertices(:,[1,2,4]),2);
+  vol_pts(:,4) = const_a*vertices(:,4) + const_b*sum(vertices(:,[1,2,3]),2);
 
   for l = 1:n_vol_pts
     we_basis(:,:,l) = WE_basis(vol_pts(:,l),n_vertices);   

@@ -55,7 +55,7 @@ function [outputs] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,norma
     %% sum of 2 tetrahedral cubatures from A. H. Stroud, Approximate 
     %% Calculation of Multiple Integrals, Prentice-Hall, Englewood Cliffs, NJ, 1971
     %
-    %% tetrahedron: p_0 p_1 p_2 p_4
+    %% tetrahedron: p_0,p_1,p_2,p_4 == v1,v2,v3,v5
     % cubature points
     vol_pts(:,1) = const_a*vertices(:,1) + const_b*sum(vertices(:,[2,3,5]),2);
     vol_pts(:,2) = const_a*vertices(:,2) + const_b*sum(vertices(:,[1,3,5]),2);
