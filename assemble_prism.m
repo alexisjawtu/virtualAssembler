@@ -2,7 +2,8 @@
 function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(prism) == Wh(prism)
   %
-  % TODO: hacer un benchmark de inicializar pts_of_faces cada vez vs. pasarlo a la funcion
+  % TODO: make a benchmark for the initialization of pts_of_faces each time
+  % vs. passing it to the function
   %
   % Explanation of vol_pts: if E were the "reference prism", we would have
   %
@@ -33,11 +34,11 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
 
   vol_weights  = [1; 4; 1; 1; 4; 1; 1; 4; 1];
 
-  we_basis     = zeros(3, dim_Vh, n_vol_pts);
-  M_Element   = [vertices(:,2)-vertices(:,1),vertices(:,3)-vertices(:,1),vertices(:,4)-vertices(:,1)];
+  we_basis      = zeros(3, dim_Vh, n_vol_pts);
+  M_Element     = [vertices(:,2)-vertices(:,1),vertices(:,3)-vertices(:,1),vertices(:,4)-vertices(:,1)];
   det_M_Element = det(M_Element);
-  measE        = abs(det_M_Element)/2;
-  quad_nrmlztn = measE/36;    
+  measE         = abs(det_M_Element)/2;
+  quad_nrmlztn  = measE/36;    
 
   %% TODO: benchmark between this and (P1 + P2)/2
   vol_pts      = zeros(3,n_vol_pts);
@@ -59,8 +60,8 @@ function [outputs] = assmbl_prism(vertices,face_indices,face_types,face_pts,norm
   for r = 1:dim_Vh
     for k = 1:dim_Vh
       %% ( (wr*wk)(p1), ..., (wr*wk)(p9) )
-      vals            = reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,n_vol_pts);
-      int_E_w_w(r,k)  = vals*vol_weights;
+      vals           = reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,n_vol_pts);
+      int_E_w_w(r,k) = vals*vol_weights;
     end
   end
   
