@@ -84,6 +84,7 @@ function [res] = assembleA()
   n_Faces(6)  = 5;
 
   K = sparse(num_fc + num_el,num_fc + num_el);
+  F = sparse(num_fc + num_el,1);
 
   fprintf('Elements loop. %d\n',num_el);
   tic
@@ -108,13 +109,12 @@ function [res] = assembleA()
         face_pts(elements_by_faces(el,f)) = [face, (face + shift(face,1,2))/2, mean(face,2)];
       end
     end
-    local                     = assemble_local{n_VERT}(P,faces_of_E,face_types,face_pts,normalFacesE,measFacesE);
+    [local_matrix, local_F]   = assemble_local{n_VERT}(P,faces_of_E,face_types,face_pts,normalFacesE,measFacesE);
     W                         = ones(1,nFacesE);  %% size (1 x Ndof_E). eqref(45) page 62 and page 63.
-    K(faces_of_E,faces_of_E) += local; 
+    K(faces_of_E,faces_of_E) += local_matrix; 
     K(num_fc + el,faces_of_E) = W;
     K(faces_of_E,num_fc + el) = W.';
-
-    clear('Mdistances');
+    F(num_fc + el,1)          = local_F;
 
   end    %% end of main for
   close(h);

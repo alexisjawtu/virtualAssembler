@@ -1,5 +1,5 @@
 %% assmble_prism: function description
-function [outputs] = assmble_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+function [local_matrix, local_F] = assmble_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(prism) == Wh(prism)
   %
   % TODO: make a benchmark for the initialization of pts_of_faces each time
@@ -65,6 +65,7 @@ function [outputs] = assmble_prism(vertices,face_indices,face_types,face_pts,nor
     end
   end
   
-  int_E_w_w *= quad_nrmlztn; 
-  outputs    = int_E_w_w;
+  int_E_w_w   *= quad_nrmlztn; 
+  local_matrix = int_E_w_w;
+  local_F      = 1;
 endfunction

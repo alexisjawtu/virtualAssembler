@@ -1,5 +1,5 @@
 %% assemble_tetr: function description
-function [outputs] = assemble_tetr(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+function [local_matrix, local_F] = assemble_tetr(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(tetra) == Wh(tetra)
   %
   %% measFacesE in R(1x5)
@@ -40,6 +40,8 @@ function [outputs] = assemble_tetr(vertices,face_indices,face_types,face_pts,nor
       int_E_w_w(r,k) = sum(reshape(dot(we_basis(:,r,:),we_basis(:,k,:),1),1,n_vol_pts));
     end
   end
- 
-  outputs   = int_E_w_w * quad_nrmlztn;
+
+  local_matrix = int_E_w_w * quad_nrmlztn;
+  local_F      = sum(f(vol_pts)) * quad_nrmlztn;
 endfunction
+    

@@ -1,6 +1,6 @@
 %% assmble_pyram: function description
 %% normalFacesE: the last is the rectangle
-function [outputs] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,normalFacesE,measFacesE)
+function [local_matrix, local_F] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,normalFacesE,measFacesE)
     %
     %% face_pts is a cell. face_pts comes with five GLOBAL UNIQUE face indices,
     %% those of elements_by_faces.txt
@@ -131,6 +131,14 @@ function [outputs] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,norma
     PROJ     = int_E_w_w\b;
     K_comput = PROJ.' * int_E_w_w * PROJ;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    K_comput_2 = (int_E_w_w\b).'*b;
+    if ~(all(all(K_comput == K_comput_2)))
+        'ass_pyr:139 not equal'
+        exit;
+    end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 	%%%%%%%%%%%%%%%%% for the STABILIZING bilinear form %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % after testing
     % D_{j,i} = dof_j ( w_i ).
@@ -145,6 +153,6 @@ function [outputs] = assmble_pyram(vertices,faces_of_E,face_types,face_pts,norma
     Proj_in_base_W  = D*PROJ;
 
     K_stab          = rescale_factor * (eye(nFaces) - Proj_in_base_W).'*(eye(nFaces) - Proj_in_base_W);
-	outputs         = K_comput + K_stab;
-
+	local_matrix    = K_comput + K_stab;
+    local_F         = 1;
 endfunction
