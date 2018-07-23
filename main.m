@@ -1,1 +1,1 @@
-A = assembleA();
+A = assemble();

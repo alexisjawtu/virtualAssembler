@@ -14,7 +14,7 @@
 %% along with this program; If not, see <http://www.gnu.org/licenses/>.
 
 %% -*- texinfo -*-
-%% @deftypefn  {Function File} {@var{A} =} assembleA (@var{filename})
+%% @deftypefn  {Function File} {@var{A} =} assemble (@var{filename})
 %% Short Description: assembles A
 %%
 %% Long Description
@@ -50,7 +50,7 @@
 %% @seealso{assemble_[type]}
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
-function [res] = assembleA()
+function [K,F] = assemble()
 
   vertices              = importdata ('vertices.txt');
   elements              = importdata ('elements_by_vertices.txt');
@@ -118,7 +118,6 @@ function [res] = assembleA()
 
   end    %% end of main for
   close(h);
-  res = K;
   a=toc;
   toc
   csvwrite('TIME',a);

@@ -10,7 +10,7 @@ function [local_matrix, local_F] = assmble_prism(vertices,face_indices,face_type
   % vol_pts = [.5  0 0; .5 .5 0; 0 .5 0; .5 0 .5; .5 .5 .5; 0 .5 .5; .5 0 1; .5 .5 1; 0 .5 1];
   
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-  %%  this was in assembleA.m. It will be useful in future versions of the program.
+  %%  this was in assemble.m. It will be useful in future versions of the program.
 
   %
   %      face_pts = {};
