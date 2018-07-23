@@ -1,5 +1,5 @@
-%% assmble_prism: function description
-function [local_matrix, local_F] = assmble_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
+%% assemble_prism: function description
+function [local_matrix, local_F] = assemble_prism(vertices,face_indices,face_types,face_pts,normalFacesE,measFacesE)
   %% for now, Vh(prism) == Wh(prism)
   %
   % TODO: make a benchmark for the initialization of pts_of_faces each time
