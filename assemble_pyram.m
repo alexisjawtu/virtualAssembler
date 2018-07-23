@@ -74,7 +74,10 @@ function [local_matrix, local_F] = assmble_pyram(vertices,faces_of_E,face_types,
                   vertices(:,5)-vertices(:,2), vertices(:,3)-vertices(:,4),...
                   vertices(:,3)-vertices(:,5), vertices(:,4)-vertices(:,5)];
    
-    M_Element = Mdistances(:, [3, 1, 4]);
+    M_Element      = Mdistances(:, [3, 1, 4]);
+    quad_nrmlztn   = abs(det(M_Element))/24; %% <--- measE/8;    
+    rescale_factor = 1/max(norm(Mdistances,2,'columns')); %% 1/h_E
+    clear('Mdistances');
 
     face_quad_coef = {};
     %% after testing
@@ -84,9 +87,6 @@ function [local_matrix, local_F] = assmble_pyram(vertices,faces_of_E,face_types,
     %% after testing
     face_quad_coef(faces_of_E(find(face_types == 4))) = [1;1;1;1;4;4;4;4;16]*measFacesE(find(face_types == 4))/36;
 
-    quad_nrmlztn   = abs(det(M_Element))/24; %% <--- measE/8;    
-    rescale_factor = 1/max(norm(Mdistances,2,'columns')); %% 1/h_E
-    clear('Mdistances');
 
     we_potentials = zeros(n_vol_pts, dim_Wh);
     we_basis      = zeros(3, dim_Wh, n_vol_pts);
@@ -154,5 +154,5 @@ function [local_matrix, local_F] = assmble_pyram(vertices,faces_of_E,face_types,
 
     K_stab          = rescale_factor * (eye(nFaces) - Proj_in_base_W).'*(eye(nFaces) - Proj_in_base_W);
 	local_matrix    = K_comput + K_stab;
-    local_F         = 1;
+    local_F         = sum(f(vol_pts))*quad_nrmlztn;
 endfunction

@@ -4,7 +4,7 @@
 %%
 %% size(x) == (3,N_vol_pts_E)
 %%
-%% y is the vector s.t. y(i) == f(x(:,i))
+%% y is the ROW-vector s.t. y(i) == f(x(:,i))
 function [y] = f(x)
 	y = sin(x(1,:).*x(2,:)).+x(3,:);
 

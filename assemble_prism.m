@@ -67,5 +67,5 @@ function [local_matrix, local_F] = assmble_prism(vertices,face_indices,face_type
   
   int_E_w_w   *= quad_nrmlztn; 
   local_matrix = int_E_w_w;
-  local_F      = 1;
+  local_F      = quad_nrmlztn*f(vol_pts)*vol_weights;
 endfunction
