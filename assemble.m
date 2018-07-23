@@ -121,6 +121,9 @@ function [K,F] = assemble()
   a=toc;
   toc
   csvwrite('TIME',a);
+  K_full = full(K);
+  F_full = full(F);
+  save ('assembled.txt', 'K_full','F_full')
 
 endfunction
 

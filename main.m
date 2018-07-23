@@ -1,1 +1,1 @@
-[K,F]= assemble();
+[K,F] = assemble();
