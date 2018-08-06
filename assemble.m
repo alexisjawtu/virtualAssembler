@@ -50,7 +50,7 @@
 %% @seealso{assemble_[type]}
 %% @end deftypefn
 %% Author: Alexis Jawtuschenko.
-function [K,F] = assemble()
+function [K,F,num_fc,num_el] = assemble()
 
   vertices              = importdata ('vertices.txt');
   elements              = importdata ('elements_by_vertices.txt');
@@ -58,8 +58,8 @@ function [K,F] = assemble()
   faces                 = importdata ('faces.txt');
 
   vertices              = vertices.';
-  num_el                = size (elements,1);
-  num_fc                = size (faces,1);
+  num_el                = size (elements,1)
+  num_fc                = size (faces,1)
 
   fprintf('Global normals and measures, %d faces\n', num_fc);
 
