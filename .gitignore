@@ -5,6 +5,7 @@ octave-workspace
 face_quad_points.m
 untitled.m
 *.pdf
+*.txt
 crabs.m
 assembled.txt
 globalNorms.txt
